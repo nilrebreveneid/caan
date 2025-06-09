@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>1.7 गैर सैनिक हवाई उडान (सिभिल एभिएसन) ऐन, २०१५ </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #c3dafe);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3a8a;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .progress-bar {
+            background: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .progress {
+            background: #3b82f6;
+            height: 100%;
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .question {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .question:hover {
+            transform: translateY(-2px);
+        }
+
+        .question p {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+        }
+
+        .options button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            color: #374151;
+        }
+
+        .options button:hover:not(:disabled) {
+            background: #f3f4f6;
+            border-color: #3b82f6;
+            transform: translateX(4px);
+        }
+
+        .options button.correct {
+            background: #bbf7d0;
+            border-color: #22c55e;
+            color: #166534;
+        }
+
+        .options button.wrong {
+            background: #fecaca;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .options button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .explanation {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #eff6ff;
+            border-radius: 8px;
+            color: #1e3a8a;
+            font-size: 0.95rem;
+        }
+
+        .score-container {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .results-btn {
+            display: none;
+            margin: 1rem auto;
+            padding: 0.75rem 2rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .results-btn:hover {
+            background: #2563eb;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+
+            .quiz-container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .question p {
+                font-size: 1rem;
+            }
+
+            .options button {
+                font-size: 0.9rem;
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>1.7 गैर सैनिक हवाई उडान (सिभिल एभिएसन) ऐन, २०१५ </h1>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <div class="timer" id="timer">समय: 00:00</div>
+            <div class="score" id="current-score">स्कोर: 0/30</div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div id="quiz"></div>
+        <div class="score-container">
+            <div class="score" id="score"></div>
+            <button class="results-btn" id="results-btn">नतिजा हेर्नुहोस्</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                q: "एअर बर्डिनेश सर्टिफिकेट को पूर्ण रूप के हो?",
+                options: ["उडान योग्यता प्रमाणपत्र", "विमान सुरक्षा प्रमाणपत्र", "हवाई मार्ग अनुमति पत्र", "पाइलट तालिम प्रमाणपत्र"],
+                answer: 0,
+                explanation: "एअर बर्डिनेश सर्टिफिकेटले विमानको उडान योग्यता प्रमाणित गर्छ, जुन ऐनको सुरक्षात्मक प्रावधानमा आधारित छ।"
+            },
+            {
+                q: "नेपाल सरकारले तोकेको स्थान बाहेकबाट विमान उडान गर्न सकिन्छ?",
+                options: ["हो", "छैन", "विशेष अनुमतिमा मात्र", "कुनै पनि समयमा"],
+                answer: 1,
+                explanation: "ऐनले तोकिएको स्थान बाहेकबाट उडान निषेध गरेको छ, जुन सुरक्षाको लागि हो।"
+            },
+            {
+                q: "विमानको उडानको लागि कस्तो इन्धनको प्रयोग गर्नुपर्छ?",
+                options: ["न्यूनतम आवश्यक मात्रा", "जुनसुकै प्रकारको", "बढी मात्रामा", "कुनै पनि इन्धन नचाहिन्छ"],
+                answer: 0,
+                explanation: "न्यूनतम आवश्यक इन्धनको प्रयोग अनिवार्य छ, जुन उडान सुरक्षा सुनिश्चित गर्नको लागि हो।"
+            },
+            {
+                q: "पाइलट इन कमान्डले उडान गर्नुपूर्व कुन कुरामा सन्तुष्ट हुनुपर्छ?",
+                options: ["विमानको कुल लोड सुरक्षित छ", "इन्धन मात्र पर्याप्त छ", "यात्रुको संख्या मात्र", "कुनै पनि कुराको चासो नराख्नु"],
+                answer: 0,
+                explanation: "पाइलटले लोड, सन्तुलन र इन्धन जाँच गरी सुरक्षित भएकोमा विश्वस्त हुनुपर्छ।"
+            },
+            {
+                q: "विमानमा जीवन उद्धार सामग्रीको अभावमा उडान गर्न सकिन्छ?",
+                options: ["हो", "छैन", "विशेष परिस्थितिमा मात्र", "यात्रुको सहमतिमा"],
+                answer: 1,
+                explanation: "जीवन उद्धार सामग्री अनिवार्य छ, जसको अभावमा उडान निषेध गरिन्छ।"
+            },
+            {
+                q: "विमानस्थलमा प्रवेश गर्न कसको आदेश आवश्यक पर्छ?",
+                options: ["महानिर्देशकको", "प्रहरीको", "स्थानीय व्यक्तिको", "कुनै पनि व्यक्तिको"],
+                answer: 0,
+                explanation: "महानिर्देशकको आदेशले विमानस्थल प्रवेश नियन्त्रण गर्छ।"
+            },
+            {
+                q: "म्यानुअल भन्नाले के बुझिन्छ?",
+                options: ["अन्तर्राष्ट्रिय नागरिक उड्डयन संगठनको नियम", "प्राधिकरणको आन्तरिक नियमावली", "पाइलटको व्यक्तिगत म्यानुअल", "विमानको मर्मत सम्बन्धी किताब"],
+                answer: 0,
+                explanation: "म्यानुअलले ICAO को नियमलाई जनाउँछ, जुन ऐनमा उल्लेख छ।"
+            },
+            {
+                q: "विमान उडानले वातावरणमा प्रदूषण गर्न सक्छ?",
+                options: ["हो, तर सीमा भित्र मात्र", "हो, कुनै सीमा नभएर", "छैन", "विशेष अनुमतिमा मात्र"],
+                answer: 0,
+                explanation: "प्रदूषणको सीमा तोकिएको छ, जुन भित्र मात्र उडान अनुमति छ।"
+            },
+            {
+                q: "विमानको लग बुकमा कस्तो रेकर्ड राखिन्छ?",
+                options: ["यात्रा लग बुक", "इन्जिन लग बुक", "दुवै", "कुनै पनि होइन"],
+                answer: 2,
+                explanation: "यात्रा र इन्जिन लग बुक दुवै राख्नुपर्छ, जुन ऐनको मर्मत र निगरानीको लागि हो।"
+            },
+            {
+                q: "विमानस्थलमा प्रकाशको व्यवस्था कसले गर्नुपर्छ?",
+                options: ["प्राधिकरण", "स्थानीय बासिन्दाले", "विमान कम्पनी", "यात्रु"],
+                answer: 0,
+                explanation: "प्राधिकरणले प्रकाश व्यवस्था गर्नुपर्छ, जुन सुरक्षा सुनिश्चित गर्नको लागि हो।"
+            },
+            {
+                q: "विमानमा रेडियो सम्पर्क र उड्डयन सहाय उपकरण जडान गर्नुपर्छ?",
+                options: ["हो", "छैन", "विशेष उडानमा मात्र", "यात्रुको मागमा"],
+                answer: 0,
+                explanation: "रेडियो र उड्डयन सहाय उपकरण अनिवार्य छ, जुन उडान समन्वयको लागि हो।"
+            },
+            {
+                q: "विमानको उडानको लागि कुन कुरा सुरक्षित हुनुपर्छ?",
+                options: ["सामानको सन्तुलन", "यात्रुको मात्रा", "इन्धनको मात्रा", "सबै"],
+                answer: 3,
+                explanation: "लोड, सन्तुलन, इन्धन र अन्य सबै पक्ष सुरक्षित हुनुपर्छ।"
+            },
+            {
+                q: "कुन अवस्थामा विमानको उडान निषेध गरिन्छ?",
+                options: ["एअर बर्डिनेश सर्टिफिकेट नभएको", "इन्धन पर्याप्त भएको", "पाइलट सन्तुष्ट भएको", "विमान नयाँ भएको"],
+                answer: 0,
+                explanation: "उडान योग्यता प्रमाणपत्र नभएको अवस्थामा उडान निषेध छ।"
+            },
+            {
+                q: "विमानस्थलको वरपर फोहर मैला राख्न पाइन्छ?",
+                options: ["हो", "छैन", "विशेष अनुमतिमा", "यात्रुको इच्छामा"],
+                answer: 1,
+                explanation: "फोहर मैला राख्न निषेध छ, जुन वातावरण संरक्षणको लागि हो।"
+            },
+            {
+                q: "विमानको उडानको लागि कस्तो प्रकारको अनुमति आवश्यक पर्छ?",
+                options: ["स्थानीय निकायको", "नेपाल सरकार वा प्राधिकरणको", "विमान कम्पनीको", "कुनै पनि नपर्ने"],
+                answer: 1,
+                explanation: "सरकार वा प्राधिकरणको अनुमति आवश्यक पर्छ, जुन ऐनमा उल्लेख छ।"
+            },
+            {
+                q: "अग्नि निवारण सामग्री विमानमा किन आवश्यक छ?",
+                options: ["दुर्घटना रोक्न", "यात्रुको सुविधा", "इन्धन बचत", "विमानको तौल बढाउन"],
+                answer: 0,
+                explanation: "अग्नि निवारण सामग्री दुर्घटना रोक्न आवश्यक छ।"
+            },
+            {
+                q: "विमानको मर्मत सम्बन्धी कस्तो रेकर्ड राखिन्छ?",
+                options: ["इन्जिन लग बुक", "यात्रा लग बुक", "दुवै", "कुनै पनि होइन"],
+                answer: 0,
+                explanation: "इन्जिन लग बुक मर्मत रेकर्डको लागि प्रयोग हुन्छ।"
+            },
+            {
+                q: "विमानको उडान सुरक्षित गर्न कुन कुराको ध्यान दिनुपर्छ?",
+                options: ["पाइलटको अनुभव", "विमानको अवस्था", "दुवै", "कुनै पनि होइन"],
+                answer: 2,
+                explanation: "पाइलटको अनुभव र विमानको अवस्था दुवै महत्त्वपूर्ण छ।"
+            },
+            {
+                q: "विमानस्थलमा प्रवेश निषेध भएका व्यक्तिहरू को हुन्?",
+                options: ["अनधिकृत व्यक्ति", "पाइलट", "प्राधिकरण कर्मचारी", "यात्रु"],
+                answer: 0,
+                explanation: "अनधिकृत व्यक्तिको प्रवेश निषेध गरिन्छ।"
+            },
+            {
+                q: "विमानको उडानको लागि कुन कुरा अनिवार्य छ?",
+                options: ["उडान योग्यता प्रमाणपत्र", "स्थानीय अनुमति", "यात्रुको संख्या", "कुनै पनि नपर्ने"],
+                answer: 0,
+                explanation: "उडान योग्यता प्रमाणपत्र अनिवार्य छ।"
+            },
+            {
+                q: "विमानस्थलमा प्रकाशको व्यवस्था कसले गर्नुपर्छ?",
+                options: ["प्राधिकरण", "विमान चालक", "यात्रु", "स्थानीय निकाय"],
+                answer: 0,
+                explanation: "प्राधिकरणले प्रकाश व्यवस्था गर्नुपर्छ, जुन सुरक्षा र नियन्त्रणको लागि हो।"
+            },
+            {
+                q: "विमान उडानमा प्रदूषणको सीमा कसले तोक्छ?",
+                options: ["नेपाल सरकार", "प्राधिकरण", "ICAO", "दुवै A र B"],
+                answer: 3,
+                explanation: "नेपाल सरकार र प्राधिकरण दुवैले प्रदूषणको सीमा तोक्छ।"
+            },
+            {
+                q: "पाइलटले उडान गर्नुपूर्व कुन कुराको जाँच गर्नुपर्छ?",
+                options: ["विमानको इन्धन मात्र", "सामानको सन्तुलन र लोड", "यात्रुको टिकट मात्र", "सबै कुरा"],
+                answer: 3,
+                explanation: "पाइलटले इन्धन, लोड, सन्तुलन र सबै पक्ष जाँच गर्नुपर्छ।"
+            },
+            {
+                q: "विमानमा रेडियो सम्पर्क किन आवश्यक छ?",
+                options: ["यात्रुको मनोरञ्जनको लागि", "उड्डयन सहायता र समन्वयको लागि", "इन्धन बचतको लागि", "विमानको तौल घटाउन"],
+                answer: 1,
+                explanation: "रेडियो सम्पर्क उड्डयन सहायता र समन्वयको लागि अनिवार्य छ।"
+            },
+            {
+                q: "विमानस्थलमा अनधिकृत व्यक्तिको प्रवेश किन निषेध छ?",
+                options: ["सुरक्षा कायम गर्न", "यात्रुको सुविधा", "इन्धन बचत", "विमानको मर्मत"],
+                answer: 0,
+                explanation: "अनधिकृत प्रवेश निषेध सुरक्षा कायम गर्नको लागि हो।"
+            },
+            {
+                q: "विमानको उडानको लागि कस्तो अनुमति आवश्यक पर्छ?",
+                options: ["स्थानीय निकायको", "नेपाल सरकार वा प्राधिकरणको", "विमान कम्पनीको", "यात्रुको"],
+                answer: 1,
+                explanation: "सरकार वा प्राधिकरणको अनुमति आवश्यक पर्छ।"
+            },
+            {
+                q: "अग्नि निवारण सामग्री विमानमा किन राखिन्छ?",
+                options: ["दुर्घटना रोक्न", "यात्रुको मनोरञ्जन", "इन्धन बचत", "विमानको सजावट"],
+                answer: 0,
+                explanation: "अग्नि निवारण सामग्री दुर्घटना रोक्नको लागि राखिन्छ।"
+            },
+            {
+                q: "विमानको लग बुक किन अद्यावधिक राखिन्छ?",
+                options: ["यात्रुको जानकारीको लागि", "सुरक्षा र निगरानीको लागि", "इन्धनको हिसाबको लागि", "विमानको बिक्रीको लागि"],
+                answer: 1,
+                explanation: "लग बुक सुरक्षा र निगरानीको लागि अद्यावधिक राखिन्छ।"
+            },
+            {
+                q: "नेपाल सरकारको बायुयानमा यो ऐन लागु हुन्छ?",
+                options: ["हो", "छैन", "विशेष अवस्थामा मात्र", "आंशिक रूपमा"],
+                answer: 1,
+                explanation: "ऐनको दफा 94 मा नेपाल सरकार वा नेपाली सेनाको बायुयानमा यो ऐन लागु हुँदैन।"
+            },
+            {
+                q: "विमानस्थलमा हतियार बोक्न कसले जाँच गर्छ?",
+                options: ["प्रहरी", "प्राधिकरण कर्मचारी", "पाइलट", "यात्रु"],
+                answer: 0,
+                explanation: "प्रहरीले हतियार जाँच गरी कानुनी कारबाही गर्छ।"
+            }
+        ];
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        const quizContainer = document.getElementById('quiz');
+        const scoreContainer = document.getElementById('score');
+        const currentScore = document.getElementById('current-score');
+        const progressBar = document.getElementById('progress');
+        const timerDisplay = document.getElementById('timer');
+        const resultsBtn = document.getElementById('results-btn');
+        let score = 0;
+        let answeredQuestions = 0;
+        let timeElapsed = 0;
+        let timerInterval;
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeElapsed++;
+                const minutes = Math.floor(timeElapsed / 60).toString().padStart(2, '0');
+                const seconds = (timeElapsed % 60).toString().padStart(2, '0');
+                timerDisplay.textContent = `समय: ${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function updateProgress() {
+            const progressPercentage = (answeredQuestions / questions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+        }
+
+        function showResults() {
+            quizContainer.style.display = 'none';
+            scoreContainer.textContent = `फाइनल स्कोर: ${score} बाट ${questions.length} (${((score / questions.length) * 100).toFixed(2)}%)`;
+            resultsBtn.style.display = 'block';
+            resultsBtn.onclick = () => {
+                quizContainer.style.display = 'block';
+                scoreContainer.textContent = '';
+                resultsBtn.style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                location.reload(); // Reset the quiz
+            };
+            clearInterval(timerInterval);
+        }
+
+        questions.forEach((q, i) => {
+            const div = document.createElement('div');
+            div.classList.add('question');
+            div.innerHTML = `<p>${i + 1}. ${q.q}</p>`;
+
+            const optsDiv = document.createElement('div');
+            optsDiv.classList.add('options');
+
+            const explanationDiv = document.createElement('div');
+            explanationDiv.classList.add('explanation');
+            explanationDiv.textContent = q.explanation;
+
+            const shuffled = shuffle(q.options.map((opt, index) => ({ text: opt, isCorrect: index === q.answer })));
+
+            shuffled.forEach(({ text, isCorrect }) => {
+                const btn = document.createElement('button');
+                btn.textContent = text;
+                btn.onclick = () => {
+                    if (btn.classList.contains('correct') || btn.classList.contains('wrong')) return;
+                    answeredQuestions++;
+                    updateProgress();
+                    currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+
+                    if (isCorrect) {
+                        btn.classList.add('correct');
+                        score++;
+                        currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+                    } else {
+                        btn.classList.add('wrong');
+                        optsDiv.querySelectorAll('button').forEach(b => {
+                            if (b.textContent === shuffled.find(o => o.isCorrect).text) {
+                                b.classList.add('correct');
+                            }
+                        });
+                    }
+
+                    optsDiv.querySelectorAll('button').forEach(b => b.disabled = true);
+                    explanationDiv.style.display = 'block';
+
+                    if (answeredQuestions === questions.length) {
+                        showResults();
+                    }
+                };
+                optsDiv.appendChild(btn);
+            });
+
+            div.appendChild(optsDiv);
+            div.appendChild(explanationDiv);
+            quizContainer.appendChild(div);
+        });
+
+        startTimer();
+    </script>
+</body>
+</html>
