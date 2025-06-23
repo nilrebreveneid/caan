@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CAAN मन्त्रालय मोक्ड टेस्ट</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #c3dafe);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3a8a;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .progress-bar {
+            background: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .progress {
+            background: #3b82f6;
+            height: 100%;
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .question {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .question:hover {
+            transform: translateY(-2px);
+        }
+
+        .question p {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+        }
+
+        .options button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            color: #374151;
+        }
+
+        .options button:hover:not(:disabled) {
+            background: #f3f4f6;
+            border-color: #3b82f6;
+            transform: translateX(4px);
+        }
+
+        .options button.correct {
+            background: #bbf7d0;
+            border-color: #22c55e;
+            color: #166534;
+        }
+
+        .options button.wrong {
+            background: #fecaca;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .options button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .explanation {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #eff6ff;
+            border-radius: 8px;
+            color: #1e3a8a;
+            font-size: 0.95rem;
+        }
+
+        .score-container {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .results-btn {
+            display: none;
+            margin: 1rem auto;
+            padding: 0.75rem 2rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .results-btn:hover {
+            background: #2563eb;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+
+            .quiz-container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .question p {
+                font-size: 1rem;
+            }
+
+            .options button {
+                font-size: 0.9rem;
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>CAAN मन्त्रालय मोक्ड टेस्ट</h1>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <div class="timer" id="timer">समय: 00:00</div>
+            <div class="score" id="current-score">स्कोर: 0/40</div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div id="quiz"></div>
+        <div class="score-container">
+            <div class="score" id="score"></div>
+            <button class="results-btn" id="results-btn">नतिजा हेर्नुहोस्</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // Easy Questions (1-24)
+            { q: "संस्कृति, पर्यटन तथा नागरिक उड्डयन मन्त्रालयको स्थापना कुन वर्ष भएको हो?", options: ["२०५७", "२०४५", "२०६५", "२०७५"], answer: "२०५७", explanation: "मन्त्रालय २०५७ मा स्थापना भएको हो।" },
+            { q: "मन्त्रालयको मुख्यालय कहाँ छ?", options: ["सिंहदरबार, काठमाडौं", "पोखरा", "विराटनगर", "भैरहवा"], answer: "सिंहदरबार, काठमाडौं", explanation: "मुख्यालय यहाँ छ।" },
+            { q: "मन्त्रालयको प्रमुख उद्देश्य के हो?", options: ["पर्यटन र संस्कृति प्रवर्द्धन", "केवल शिक्षा विकास", "कृषि सुधार", "स्वास्थ्य सेवा"], answer: "पर्यटन र संस्कृति प्रवर्द्धन", explanation: "यो मन्त्रालयको प्रमुख उद्देश्य हो।" },
+            { q: "मन्त्रालयले कुन क्षेत्रमा काम गर्छ?", options: ["नागरिक उड्डयन", "सडक यातायात", "रेल सेवा", "जल यातायात"], answer: "नागरिक उड्डयन", explanation: "यो क्षेत्रमा काम गर्छ।" },
+            { q: "मन्त्रालयले कुन संगठनको नियमन गर्छ?", options: ["नेपाल नागरिक उड्डयन प्राधिकरण", "नेपाल रेल्वे", "नेपाल बस सेवा", "नेपाल जल परिवहन"], answer: "नेपाल नागरिक उड्डयन प्राधिकरण", explanation: "CAAN को नियमन गर्छ।" },
+            { q: "मन्त्रालयको स्थापना कुन ऐनद्वारा भएको हो?", options: ["नागरिक उड्डयन ऐन, २०५३", "पर्यटन ऐन, २०३४", "संस्कृति ऐन, २०६१", "शिक्षा ऐन, २०२८"], answer: "नागरिक उड्डयन ऐन, २०५३", explanation: "यो ऐनद्वारा स्थापना भएको हो।" },
+            { q: "मन्त्रालयले कति वटा विमानस्थलको विकासमा सहयोग गर्छ?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै विमानस्थलको विकासमा सहयोग गर्छ।" },
+            { q: "मन्त्रालयको मन्त्री को नियुक्ति कसले गर्छ?", options: ["प्रधानमन्त्री", "राष्ट्रपति", "संसद", "प्रदेश सरकार"], answer: "प्रधानमन्त्री", explanation: "प्रधानमन्त्रीले नियुक्ति गर्छ।" },
+            { q: "मन्त्रालयले कुन नीति बनाउँछ?", options: ["हवाई यातायात नीति", "सडक यातायात नीति", "रेल नीति", "जल नीति"], answer: "हवाई यातायात नीति", explanation: "यो नीति बनाउँछ।" },
+            { q: "मन्त्रालयले कुन क्षेत्रको संरक्षण गर्छ?", options: ["संस्कृति", "कृषि", "उद्योग", "शिक्षा"], answer: "संस्कृति", explanation: "संस्कृति संरक्षण गर्छ।" },
+            { q: "मन्त्रालयले कति वटा पर्यटन गन्तव्य प्रवर्द्धन गर्छ?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै गन्तव्य प्रवर्द्धन गर्छ।" },
+            { q: "मन्त्रालयको वार्षिक बजेट कसले स्वीकृत गर्छ?", options: ["संसद", "प्रधानमन्त्री", "मन्त्री", "प्रदेश सरकार"], answer: "संसद", explanation: "संसदले स्वीकृत गर्छ।" },
+            { q: "मन्त्रालयले कुन संगठनसँग समन्वय गर्छ?", options: ["ICAO", "WHO", "UNESCO", "FAO"], answer: "ICAO", explanation: "ICAO सँग समन्वय गर्छ।" },
+            { q: "मन्त्रालयले कति वटा हवाई सेवा प्रदायकलाई नियमन गर्छ?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै प्रदायक नियमन गर्छ।" },
+            { q: "मन्त्रालयको स्थापना कुन सरकारले गरेको हो?", options: ["संवैधानिक सरकार", "प्रजातान्त्रिक सरकार", "सैनिक सरकार", "राणा सरकार"], answer: "संवैधानिक सरकार", explanation: "यो सरकारले गरेको हो।" },
+            { q: "मन्त्रालयले कुन योजना बनाउँछ?", options: ["पर्यटन विकास योजना", "कृषि विकास योजना", "शिक्षा योजना", "स्वास्थ्य योजना"], answer: "पर्यटन विकास योजना", explanation: "यो योजना बनाउँछ।" },
+            { q: "मन्त्रालयको सचिव को नियुक्ति कसले गर्छ?", options: ["सरकार", "प्रधानमन्त्री", "मन्त्री", "संसद"], answer: "सरकार", explanation: "सरकारले नियुक्ति गर्छ।" },
+            { q: "मन्त्रालयले कुन क्षेत्रको प्रचार गर्छ?", options: ["नेपाली संस्कृति", "भारतीय संस्कृति", "चिनियाँ संस्कृति", "जापानी संस्कृति"], answer: "नेपाली संस्कृति", explanation: "नेपाली संस्कृति प्रचार गर्छ।" },
+            { q: "मन्त्रालयले कति वटा मेला आयोजना गर्छ?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै मेला आयोजना गर्छ।" },
+            { q: "मन्त्रालयको नीति कति वर्षको लागि हुन्छ?", options: ["५ वर्ष", "१० वर्ष", "३ वर्ष", "१ वर्ष"], answer: "५ वर्ष", explanation: "५ वर्षको नीति हुन्छ।" },
+            { q: "मन्त्रालयले कुन उड्डयन संगठनको सहयोग गर्छ?", options: ["CAAN", "नेपाल एयरलाइन्स", "बुद्ध एयर", "यति एयरलाइन्स"], answer: "CAAN", explanation: "CAAN लाई सहयोग गर्छ।" },
+            { q: "मन्त्रालयले कुन मापदण्ड पालना गर्छ?", options: ["अन्तर्राष्ट्रिय", "केवल राष्ट्रिय", "प्रादेशिक", "स्थानीय"], answer: "अन्तर्राष्ट्रिय", explanation: "अन्तर्राष्ट्रिय मापदण्ड पालना गर्छ।" },
+            { q: "मन्त्रालयको वार्षिक प्रतिवेदन कहाँ पेश हुन्छ?", options: ["संसद", "प्रधानमन्त्री", "मन्त्री", "प्रदेश सरकार"], answer: "संसद", explanation: "संसदलाई पेश हुन्छ।" },
+            { q: "मन्त्रालयले कति वटा हवाई मार्ग विकास गर्छ?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै हवाई मार्ग विकास गर्छ।" },
+
+            // Medium Questions (25-34)
+            { q: "मन्त्रालयले कति वटा प्रदेश मन्त्रालयसँग समन्वय गर्छ?", options: ["७", "५", "३", "१"], answer: "७", explanation: "सात वटा प्रदेशसँग समन्वय गर्छ।" },
+            { q: "मन्त्रालयले कति वटा पर्यटन नीति बनाएको छ?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै नीति बनाएको छ।" },
+            { q: "मन्त्रालयले कुन संगठनसँग सहकार्य गर्छ?", options: ["UNESCO", "WHO", "UNICEF", "FAO"], answer: "UNESCO", explanation: "UNESCO सँग सहकार्य गर्छ।" },
+            { q: "मन्त्रालयले कति वटा हवाई सेवा सम्झौता गरेको छ?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै सम्झौता गरेको छ।" },
+            { q: "मन्त्रालयको पर्यटन प्रवर्द्धन कस्तो छ?", options: ["सक्रिय", "निष्क्रिय", "सीमित", "कुनै छैन"], answer: "सक्रिय", explanation: "यो सक्रिय छ।" },
+            { q: "मन्त्रालयले कति वटा संस्कृति संरक्षण कार्यक्रम गर्छ?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै कार्यक्रम गर्छ।" },
+            { q: "मन्त्रालयले कुन मापदण्डको आधारमा काम गर्छ?", options: ["ICAO", "WHO", "UNESCO", "FAO"], answer: "ICAO", explanation: "ICAO को आधारमा काम गर्छ।" },
+            { q: "मन्त्रालयको वार्षिक तालिम कति पटक हुन्छ?", options: ["एक", "दुई", "तीन", "चार"], answer: "एक", explanation: "एक पटक हुन्छ।" },
+            { q: "मन्त्रालयले कति वटा विमानस्थलको विस्तार गर्छ?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै विमानस्थल विस्तार गर्छ।" },
+            { q: "मन्त्रालयको हवाई सुरक्षा नीति कस्तो छ?", options: ["कडा", "मध्यम", "कमजोर", "कुनै छैन"], answer: "कडा", explanation: "यो कडा नीति हो।" },
+
+            // Hard Questions (35-40)
+            { q: "मन्त्रालयले ICAO सँग कस्तो सम्झौता गरेको छ?", options: ["हवाई सुरक्षा सम्झौता", "सडक यातायात सम्झौता", "जल यातायात सम्झौता", "रेल यातायात सम्झौता"], answer: "हवाई सुरक्षा सम्झौता", explanation: "यो सम्झौता गरेको छ।" },
+            { q: "मन्त्रालयले कति वटा अन्तर्राष्ट्रिय सम्झौता गरेको छ?", options: ["५ भन्दा बढी", "३", "१", "शून्य"], answer: "५ भन्दा बढी", explanation: "५ भन्दा बढी सम्झौता गरेको छ।" },
+            { q: "मन्त्रालयको हवाई नीति कति वर्षमा पुनरावलोकन हुन्छ?", options: ["५ वर्ष", "१० वर्ष", "३ वर्ष", "१ वर्ष"], answer: "५ वर्ष", explanation: "५ वर्षमा पुनरावलोकन हुन्छ।" },
+            { q: "मन्त्रालयले कुन सुरक्षा मापदण्ड पालना गर्छ?", options: ["ICAO Annex 17", "WHO मापदण्ड", "UNESCO मापदण्ड", "FAO मापदण्ड"], answer: "ICAO Annex 17", explanation: "यो मापदण्ड पालना गर्छ।" },
+            { q: "मन्त्रालयको पर्यटन रणनीति कति वर्षको लागि हो?", options: ["१० वर्ष", "५ वर्ष", "३ वर्ष", "१ वर्ष"], answer: "१० वर्ष", explanation: "१० वर्षको रणनीति हो।" },
+            { q: "मन्त्रालयले कति वटा हवाई सुरक्षा तालिम आयोजना गर्छ?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै तालिम आयोजना गर्छ।" }
+        ];
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        const quizContainer = document.getElementById('quiz');
+        const scoreContainer = document.getElementById('score');
+        const currentScore = document.getElementById('current-score');
+        const progressBar = document.getElementById('progress');
+        const timerDisplay = document.getElementById('timer');
+        const resultsBtn = document.getElementById('results-btn');
+        let score = 0;
+        let answeredQuestions = 0;
+        let timeElapsed = 0;
+        let timerInterval;
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeElapsed++;
+                const minutes = Math.floor(timeElapsed / 60).toString().padStart(2, '0');
+                const seconds = (timeElapsed % 60).toString().padStart(2, '0');
+                timerDisplay.textContent = `समय: ${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function updateProgress() {
+            const progressPercentage = (answeredQuestions / questions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+        }
+
+        function showResults() {
+            quizContainer.style.display = 'none';
+            scoreContainer.textContent = `फाइनल स्कोर: ${score} बाट ${questions.length} (${((score / questions.length) * 100).toFixed(2)}%)`;
+            resultsBtn.style.display = 'block';
+            resultsBtn.onclick = () => {
+                quizContainer.style.display = 'block';
+                scoreContainer.textContent = '';
+                resultsBtn.style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                location.reload(); // Reset the quiz
+            };
+            clearInterval(timerInterval);
+        }
+
+        questions.forEach((q, i) => {
+            const div = document.createElement('div');
+            div.classList.add('question');
+            div.innerHTML = `<p>${i + 1}. ${q.q}</p>`;
+
+            const optsDiv = document.createElement('div');
+            optsDiv.classList.add('options');
+
+            const explanationDiv = document.createElement('div');
+            explanationDiv.classList.add('explanation');
+            explanationDiv.textContent = q.explanation;
+
+            const shuffled = shuffle(q.options.map(opt => ({ text: opt, isCorrect: opt === q.answer })));
+
+            shuffled.forEach(({ text, isCorrect }) => {
+                const btn = document.createElement('button');
+                btn.textContent = text;
+                btn.onclick = () => {
+                    if (btn.classList.contains('correct') || btn.classList.contains('wrong')) return;
+                    answeredQuestions++;
+                    updateProgress();
+                    currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+
+                    if (isCorrect) {
+                        btn.classList.add('correct');
+                        score++;
+                        currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+                    } else {
+                        btn.classList.add('wrong');
+                        optsDiv.querySelectorAll('button').forEach(b => {
+                            if (b.textContent === q.answer) {
+                                b.classList.add('correct');
+                            }
+                        });
+                    }
+
+                    optsDiv.querySelectorAll('button').forEach(b => b.disabled = true);
+                    explanationDiv.style.display = 'block';
+
+                    if (answeredQuestions === questions.length) {
+                        showResults();
+                    }
+                };
+                optsDiv.appendChild(btn);
+            });
+
+            div.appendChild(optsDiv);
+            div.appendChild(explanationDiv);
+            quizContainer.appendChild(div);
+        });
+
+        startTimer();
+    </script>
+</body>
+</html>
