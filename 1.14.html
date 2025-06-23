@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>अन्तर्राष्ट्रिय संगठन मोक्ड टेस्ट</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #c3dafe);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3a8a;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .progress-bar {
+            background: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .progress {
+            background: #3b82f6;
+            height: 100%;
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .question {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .question:hover {
+            transform: translateY(-2px);
+        }
+
+        .question p {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+        }
+
+        .options button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            color: #374151;
+        }
+
+        .options button:hover:not(:disabled) {
+            background: #f3f4f6;
+            border-color: #3b82f6;
+            transform: translateX(4px);
+        }
+
+        .options button.correct {
+            background: #bbf7d0;
+            border-color: #22c55e;
+            color: #166534;
+        }
+
+        .options button.wrong {
+            background: #fecaca;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .options button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .explanation {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #eff6ff;
+            border-radius: 8px;
+            color: #1e3a8a;
+            font-size: 0.95rem;
+        }
+
+        .score-container {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .results-btn {
+            display: none;
+            margin: 1rem auto;
+            padding: 0.75rem 2rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .results-btn:hover {
+            background: #2563eb;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+
+            .quiz-container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .question p {
+                font-size: 1rem;
+            }
+
+            .options button {
+                font-size: 0.9rem;
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>अन्तर्राष्ट्रिय संगठन मोक्ड टेस्ट</h1>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <div class="timer" id="timer">समय: 00:00</div>
+            <div class="score" id="current-score">स्कोर: 0/30</div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div id="quiz"></div>
+        <div class="score-container">
+            <div class="score" id="score"></div>
+            <button class="results-btn" id="results-btn">नतिजा हेर्नुहोस्</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // Easy Questions (1-18)
+            { q: "संयुक्त राष्ट्रसंघको स्थापना कुन वर्ष भएको हो?", options: ["१९४५", "१९५०", "१९६०", "१९७०"], answer: "१९४५", explanation: "संयुक्त राष्ट्रसंघ १९४५ मा स्थापना भएको हो।" },
+            { q: "सार्कको स्थापना कुन वर्ष भएको हो?", options: ["१९८५", "१९९०", "१९९५", "२०००"], answer: "१९८५", explanation: "सार्क १९८५ मा स्थापना भएको हो।" },
+            { q: "बिमस्टेकको स्थापना कुन वर्ष भएको हो?", options: ["१९९७", "१९९५", "२०००", "२००५"], answer: "१९९७", explanation: "बिमस्टेक १९९७ मा स्थापना भएको हो।" },
+            { q: "आसियानको स्थापना कुन वर्ष भएको हो?", options: ["१९६७", "१९७०", "१९६५", "१९८०"], answer: "१९६७", explanation: "आसियान १९६७ मा स्थापना भएको हो।" },
+            { q: "युरोपियन युनियनको स्थापना कुन वर्ष भएको हो?", options: ["१९९३", "१९९५", "१९९०", "२०००"], answer: "१९९३", explanation: "युरोपियन युनियन १९९३ मा स्थापना भएको हो।" },
+            { q: "संयुक्त राष्ट्रसंघको मुख्यालय कहाँ छ?", options: ["न्युयोर्क", "जेनेभा", "पेरिस", "लन्डन"], answer: "न्युयोर्क", explanation: "मुख्यालय न्युयोर्कमा छ।" },
+            { q: "सार्कको मुख्यालय कहाँ छ?", options: ["काठमाडौं", "नई दिल्ली", "इस्लामाबाद", "ढाका"], answer: "काठमाडौं", explanation: "मुख्यालय काठमाडौंमा छ।" },
+            { q: "बिमस्टेकको मुख्यालय कहाँ छ?", options: ["ढाका", "बैंकक", "कोलकाता", "काठमाडौं"], answer: "ढाका", explanation: "मुख्यालय ढाकामा छ।" },
+            { q: "आसियानको मुख्यालय कहाँ छ?", options: ["जकार्ता", "सिंगापुर", "क्वालालम्पुर", "मनीला"], answer: "जकार्ता", explanation: "मुख्यालय जकार्तामा छ।" },
+            { q: "युरोपियन युनियनको मुख्यालय कहाँ छ?", options: ["ब्रसेल्स", "पेरिस", "बर्लिन", "रोम"], answer: "ब्रसेल्स", explanation: "मुख्यालय ब्रसेल्समा छ।" },
+            { q: "संयुक्त राष्ट्रसंघको उद्देश्य के हो?", options: ["शान्ति कायम गर्नु", "केवल व्यापार", "केवल शिक्षा", "केवल स्वास्थ्य"], answer: "शान्ति कायम गर्नु", explanation: "शान्ति कायम गर्नु उद्देश्य हो।" },
+            { q: "सार्कको उद्देश्य के हो?", options: ["क्षेत्रीय सहयोग", "केवल व्यापार", "केवल शिक्षा", "केवल स्वास्थ्य"], answer: "क्षेत्रीय सहयोग", explanation: "क्षेत्रीय सहयोग उद्देश्य हो।" },
+            { q: "बिमस्टेकको उद्देश्य के हो?", options: ["आर्थिक विकास", "केवल व्यापार", "केवल शिक्षा", "केवल स्वास्थ्य"], answer: "आर्थिक विकास", explanation: "आर्थिक विकास उद्देश्य हो।" },
+            { q: "आसियानको उद्देश्य के हो?", options: ["क्षेत्रीय स्थायित्व", "केवल व्यापार", "केवल शिक्षा", "केवल स्वास्थ्य"], answer: "क्षेत्रीय स्थायित्व", explanation: "क्षेत्रीय स्थायित्व उद्देश्य हो।" },
+            { q: "युरोपियन युनियनको उद्देश्य के हो?", options: ["आर्थिक एकीकरण", "केवल व्यापार", "केवल शिक्षा", "केवल स्वास्थ्य"], answer: "आर्थिक एकीकरण", explanation: "आर्थिक एकीकरण उद्देश्य हो।" },
+            { q: "संयुक्त राष्ट्रसंघको महासचिव को हो (२०२५ सम्म)?", options: ["एन्टोनियो गुटेरेस", "बान की मून", "कोफी अन्नान", "बुटरोस घाली"], answer: "एन्टोनियो गुटेरेस", explanation: "एन्टोनियो गुटेरेस हालको महासचिव हुन्।" },
+            { q: "सार्कको सदस्य राष्ट्र कति छन्?", options: ["८", "७", "९", "१०"], answer: "८", explanation: "सार्कमा ८ सदस्य छन्।" },
+            { q: "बिमस्टेकको सदस्य राष्ट्र कति छन्?", options: ["७", "६", "८", "९"], answer: "७", explanation: "बिमस्टेकमा ७ सदस्य छन्।" },
+
+            // Medium Questions (19-26)
+            { q: "संयुक्त राष्ट्रसंघको सदस्य राष्ट्र कति छन्?", options: ["१९३", "१८५", "२००", "१७५"], answer: "१९३", explanation: "१९३ सदस्य राष्ट्र छन्।" },
+            { q: "आसियानको सदस्य राष्ट्र कति छन्?", options: ["१०", "९", "११", "१२"], answer: "१०", explanation: "आसियानमा १० सदस्य छन्।" },
+            { q: "युरोपियन युनियनको सदस्य राष्ट्र कति छन्?", options: ["२७", "२५", "३०", "३२"], answer: "२७", explanation: "युरोपियन युनियनमा २७ सदस्य छन्।" },
+            { q: "संयुक्त राष्ट्रसंघको सुरक्षा परिषद्मा कति स्थायी सदस्य छन्?", options: ["५", "७", "९", "११"], answer: "५", explanation: "५ स्थायी सदस्य छन्।" },
+            { q: "सार्कको पहिलो शिखर सम्मेलन कहाँ भएको थियो?", options: ["ढाका", "काठमाडौं", "नई दिल्ली", "इस्लामाबाद"], answer: "ढाका", explanation: "पहिलो सम्मेलन ढाकामा भएको हो।" },
+            { q: "बिमस्टेकको पहिलो बैठक कुन वर्ष भएको हो?", options: ["१९९७", "१९९८", "१९९९", "२०००"], answer: "१९९७", explanation: "पहिलो बैठक १९९७ मा भएको हो।" },
+            { q: "आसियानको पहिलो शिखर सम्मेलन कहाँ भएको थियो?", options: ["बैंकक", "जकार्ता", "सिंगापुर", "क्वालालम्पुर"], answer: "बैंकक", explanation: "पहिलो सम्मेलन बैंककमा भएको हो।" },
+            { q: "युरोपियन युनियनको पहिलो अध्यक्ष को थिए?", options: ["ज्याक डेलर", "रोमानो प्रोडी", "हर्मन भान रोम्पुय", "जोस म्यानुएल बारोसो"], answer: "ज्याक डेलर", explanation: "ज्याक डेलर पहिलो अध्यक्ष थिए।" },
+
+            // Hard Questions (27-30)
+            { q: "युरोपियन युनियनको सबैभन्दा ठूलो अर्थतन्त्र कुन देशको हो?", options: ["जर्मनी", "फ्रान्स", "इटाली", "स्पेन"], answer: "जर्मनी", explanation: "जर्मनीको अर्थतन्त्र सबैभन्दा ठूलो हो।" },
+            { q: "संयुक्त राष्ट्रसंघको पहिलो महासचिव को थिए?", options: ["ट्रिग्वे ली", "डग हामरस्जोल्ड", "उ थान्त", "कुर्त वाल्डहाइम"], answer: "ट्रिग्वे ली", explanation: "ट्रिग्वे ली पहिलो महासचिव थिए।" },
+            { q: "सार्कको वर्तमान महासचिव को हो (२०२५ सम्म)?", options: ["मोहम्मद इब्राहिम खालिल", "अमजद हुसैन बी सियाल", "अरुण कुमार", "शेख मोहम्मद"], answer: "मोहम्मद इब्राहिम खालिल", explanation: "हालको महासचिव हुन्।" },
+            { q: "आसियानको वर्तमान महासचिव को हो (२०२५ सम्म)?", options: ["कासित पीचोटी", "ले लुआन मिन्ह", "लिम जॉक होय", "सुरिन पिटसुवान"], answer: "कासित पीचोटी", explanation: "हालको महासचिव हुन्।" }
+        ];
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        const quizContainer = document.getElementById('quiz');
+        const scoreContainer = document.getElementById('score');
+        const currentScore = document.getElementById('current-score');
+        const progressBar = document.getElementById('progress');
+        const timerDisplay = document.getElementById('timer');
+        const resultsBtn = document.getElementById('results-btn');
+        let score = 0;
+        let answeredQuestions = 0;
+        let timeElapsed = 0;
+        let timerInterval;
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeElapsed++;
+                const minutes = Math.floor(timeElapsed / 60).toString().padStart(2, '0');
+                const seconds = (timeElapsed % 60).toString().padStart(2, '0');
+                timerDisplay.textContent = `समय: ${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function updateProgress() {
+            const progressPercentage = (answeredQuestions / questions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+        }
+
+        function showResults() {
+            quizContainer.style.display = 'none';
+            scoreContainer.textContent = `फाइनल स्कोर: ${score} बाट ${questions.length} (${((score / questions.length) * 100).toFixed(2)}%)`;
+            resultsBtn.style.display = 'block';
+            resultsBtn.onclick = () => {
+                quizContainer.style.display = 'block';
+                scoreContainer.textContent = '';
+                resultsBtn.style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                location.reload(); // Reset the quiz
+            };
+            clearInterval(timerInterval);
+        }
+
+        questions.forEach((q, i) => {
+            const div = document.createElement('div');
+            div.classList.add('question');
+            div.innerHTML = `<p>${i + 1}. ${q.q}</p>`;
+
+            const optsDiv = document.createElement('div');
+            optsDiv.classList.add('options');
+
+            const explanationDiv = document.createElement('div');
+            explanationDiv.classList.add('explanation');
+            explanationDiv.textContent = q.explanation;
+
+            const shuffled = shuffle(q.options.map(opt => ({ text: opt, isCorrect: opt === q.answer })));
+
+            shuffled.forEach(({ text, isCorrect }) => {
+                const btn = document.createElement('button');
+                btn.textContent = text;
+                btn.onclick = () => {
+                    if (btn.classList.contains('correct') || btn.classList.contains('wrong')) return;
+                    answeredQuestions++;
+                    updateProgress();
+                    currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+
+                    if (isCorrect) {
+                        btn.classList.add('correct');
+                        score++;
+                        currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+                    } else {
+                        btn.classList.add('wrong');
+                        optsDiv.querySelectorAll('button').forEach(b => {
+                            if (b.textContent === q.answer) {
+                                b.classList.add('correct');
+                            }
+                        });
+                    }
+
+                    optsDiv.querySelectorAll('button').forEach(b => b.disabled = true);
+                    explanationDiv.style.display = 'block';
+
+                    if (answeredQuestions === questions.length) {
+                        showResults();
+                    }
+                };
+                optsDiv.appendChild(btn);
+            });
+
+            div.appendChild(optsDiv);
+            div.appendChild(explanationDiv);
+            quizContainer.appendChild(div);
+        });
+
+        startTimer();
+    </script>
+</body>
+</html>
