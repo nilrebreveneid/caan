@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>दिगो विकास मोक्ड टेस्ट</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #c3dafe);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3a8a;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .progress-bar {
+            background: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .progress {
+            background: #3b82f6;
+            height: 100%;
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .question {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .question:hover {
+            transform: translateY(-2px);
+        }
+
+        .question p {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+        }
+
+        .options button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            color: #374151;
+        }
+
+        .options button:hover:not(:disabled) {
+            background: #f3f4f6;
+            border-color: #3b82f6;
+            transform: translateX(4px);
+        }
+
+        .options button.correct {
+            background: #bbf7d0;
+            border-color: #22c55e;
+            color: #166534;
+        }
+
+        .options button.wrong {
+            background: #fecaca;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .options button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .explanation {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #eff6ff;
+            border-radius: 8px;
+            color: #1e3a8a;
+            font-size: 0.95rem;
+        }
+
+        .score-container {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .results-btn {
+            display: none;
+            margin: 1rem auto;
+            padding: 0.75rem 2rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .results-btn:hover {
+            background: #2563eb;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+
+            .quiz-container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .question p {
+                font-size: 1rem;
+            }
+
+            .options button {
+                font-size: 0.9rem;
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>दिगो विकास मोक्ड टेस्ट</h1>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <div class="timer" id="timer">समय: 00:00</div>
+            <div class="score" id="current-score">स्कोर: 0/40</div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div id="quiz"></div>
+        <div class="score-container">
+            <div class="score" id="score"></div>
+            <button class="results-btn" id="results-btn">नतिजा हेर्नुहोस्</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // Easy Questions (1-24)
+            { q: "दिगो विकासको लक्ष्य कति वटा छन्?", options: ["१७", "१५", "२०", "१०"], answer: "१७", explanation: "दिगो विकासको १७ लक्ष्य छन्।" },
+            { q: "नेपालले दिगो विकास लक्ष्य कुन वर्ष स्वीकार गरेको हो?", options: ["२०१५", "२०१६", "२०१७", "२०१८"], answer: "२०१५", explanation: "नेपालले २०१५ मा स्वीकार गरेको हो।" },
+            { q: "वातावरण प्रदुषणको प्रमुख स्रोत के हो?", options: ["सवारी साधन र उद्योग", "जंगल", "पानी", "हावा"], answer: "सवारी साधन र उद्योग", explanation: "यो प्रमुख स्रोत हो।" },
+            { q: "नेपालको जनसंख्या वृद्धि दर कति हो?", options: ["२.३%", "१.५%", "३.०%", "४.५%"], answer: "२.३%", explanation: "जनसंख्या वृद्धि दर २.३% छ।" },
+            { q: "वातावरण प्रदुषण कति प्रकारको हुन्छ?", options: ["दुई", "तीन", "चार", "पाँच"], answer: "दुई", explanation: "प्रदुषण दुई प्रकारको हुन्छ।" },
+            { q: "शहरीकरणको दर नेपालमा कति हो?", options: ["२०.६%", "१५%", "२५%", "३०%"], answer: "२०.६%", explanation: "शहरीकरणको दर २०.६% छ।" },
+            { q: "जलवायु परिवर्तनको प्रभाव कहाँ देखिन्छ?", options: ["हिमाल", "समुद्र", "मरुभूमि", "जंगल"], answer: "हिमाल", explanation: "हिमालमा प्रभाव देखिन्छ।" },
+            { q: "जैविक विविधताको संरक्षण कसले गर्छ?", options: ["सरकार", "निजी क्षेत्र", "यात्रु", "प्रहरी"], answer: "सरकार", explanation: "सरकारले संरक्षण गर्छ।" },
+            { q: "वातावरण प्रदुषणले कस्तो असर गर्छ?", options: ["स्वास्थ्यमा", "केवल लाभ", "कुनै असर नहुने", "शिक्षामा"], answer: "स्वास्थ्यमा", explanation: "स्वास्थ्यमा असर गर्छ।" },
+            { q: "नेपालको जनसंख्या कति हो?", options: ["लगभग ३ करोड", "२ करोड", "४ करोड", "५ करोड"], answer: "लगभग ३ करोड", explanation: "जनसंख्या लगभग ३ करोड छ।" },
+            { q: "शहरीकरणले कति क्षेत्र प्रभावित हुन्छ?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै क्षेत्र प्रभावित हुन्छ।" },
+            { q: "जलवायु परिवर्तनले कति वर्षमा प्रभाव देखिन्छ?", options: ["दशकौँ", "महिना", "हप्ता", "दिन"], answer: "दशकौँ", explanation: "दशकौँमा प्रभाव देखिन्छ।" },
+            { q: "जैविक विविधतामा कति प्रजाति छन्?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै प्रजाति छन्।" },
+            { q: "दिगो विकासको मुख्य सिद्धान्त के हो?", options: ["सन्तुलन", "केवल लाभ", "केवल हानी", "कुनै नहुने"], answer: "सन्तुलन", explanation: "सन्तुलन मुख्य सिद्धान्त हो।" },
+            { q: "वातावरण प्रदुषण कति प्रतिशत छ?", options: ["उच्च", "कम", "मध्यम", "शून्य"], answer: "उच्च", explanation: "प्रदुषण उच्च छ।" },
+            { q: "जनसंख्या वृद्धि कति चरणमा हुन्छ?", options: ["तीन", "दुई", "चार", "पाँच"], answer: "तीन", explanation: "तीन चरणमा हुन्छ।" },
+            { q: "शहरीकरणले कति जनालाई प्रभावित गर्छ?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरैलाई प्रभावित गर्छ।" },
+            { q: "जलवायु परिवर्तनको कारण के हो?", options: ["कार्बन उत्सर्जन", "जंगल", "पानी", "हावा"], answer: "कार्बन उत्सर्जन", explanation: "यो प्रमुख कारण हो।" },
+            { q: "जैविक विविधताको संरक्षण कति महत्त्वपूर्ण छ?", options: ["धेरै", "केही", "कम", "शून्य"], answer: "धेरै", explanation: "धेरै महत्त्वपूर्ण छ।" },
+            { q: "दिगो विकास कति वर्षको लागि हो?", options: ["२०३० सम्म", "२०४० सम्म", "२०५० सम्म", "२०६० सम्म"], answer: "२०३० सम्म", explanation: "२०३० सम्म हो।" },
+            { q: "वातावरण प्रदुषण कति प्रकारको हुन्छ?", options: ["हावा, पानी", "केवल हावा", "केवल पानी", "कुनै पनि नहुने"], answer: "हावा, पानी", explanation: "दुई प्रकारको हो।" },
+            { q: "जनसंख्या नियन्त्रण कसले गर्छ?", options: ["सरकार", "निजी क्षेत्र", "यात्रु", "प्रहरी"], answer: "सरकार", explanation: "सरकारले गर्छ।" },
+            { q: "शहरीकरण कति प्रतिशत वृद्धि भएको छ?", options: ["४%", "६%", "८%", "१०%"], answer: "४%", explanation: "४% वृद्धि भएको छ।" },
+            { q: "जलवायु परिवर्तनले कति हिमनदी पग्लिएका छन्?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै हिमनदी पग्लिएका छन्।" },
+
+            // Medium Questions (25-34)
+            { q: "शहरीकरणले कस्तो प्रभाव पार्छ?", options: ["वातावरणीय समस्या", "केवल लाभ", "कुनै प्रभाव नपर्ने", "केवल शिक्षा"], answer: "वातावरणीय समस्या", explanation: "शहरीकरणले वातावरणीय समस्या पार्छ।" },
+            { q: "जलवायु परिवर्तनले कति क्षेत्र प्रभावित हुन्छ?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै क्षेत्र प्रभावित हुन्छ।" },
+            { q: "जैविक विविधतामा कति पारिस्थितिक तन्त्र छन्?", options: ["११८", "५०", "१००", "१५०"], answer: "११८", explanation: "११८ पारिस्थितिक तन्त्र छन्।" },
+            { q: "दिगो विकासले कति लक्ष्य पूरा गरेको छ?", options: ["केही", "धेरै", "एक", "शून्य"], answer: "केही", explanation: "केही लक्ष्य पूरा भएको छ।" },
+            { q: "वातावरण प्रदुषणले कति जनालाई असर गर्छ?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरैलाई असर गर्छ।" },
+            { q: "जनसंख्या वृद्धिले कति समस्या ल्याउँछ?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै समस्या ल्याउँछ।" },
+            { q: "शहरीकरणले कति वन क्षेत्र घटाएको छ?", options: ["केही", "धेरै", "एक", "शून्य"], answer: "केही", explanation: "केही वन क्षेत्र घटाएको छ।" },
+            { q: "जलवायु परिवर्तनको लागि कति रणनीति बनाइएको छ?", options: ["एक", "दुई", "तीन", "चार"], answer: "एक", explanation: "एक रणनीति बनाइएको छ।" },
+            { q: "जैविक विविधताको संरक्षण कति खर्चिलो छ?", options: ["धेरै", "केही", "कम", "शून्य"], answer: "धेरै", explanation: "धेरै खर्चिलो छ।" },
+            { q: "दिगो विकासको लागि कति बजेट छुट्याइन्छ?", options: ["धेरै", "केही", "कम", "शून्य"], answer: "धेरै", explanation: "धेरै बजेट छुट्याइन्छ।" },
+
+            // Hard Questions (35-40)
+            { q: "जलवायु परिवर्तनले नेपालमा कति ग्लेसियर प्रभावित छन्?", options: ["१०%", "२०%", "३०%", "४०%"], answer: "३०%", explanation: "३०% ग्लेसियर प्रभावित छन्।" },
+            { q: "वातावरण प्रदुषणले कति हावा प्रदुषित हुन्छ?", options: ["उच्च", "मध्यम", "कम", "शून्य"], answer: "उच्च", explanation: "हावा प्रदुषण उच्च छ।" },
+            { q: "जनसंख्या वृद्धिको कारण कति वन हराएको छ?", options: ["केही", "धेरै", "एक", "शून्य"], answer: "केही", explanation: "केही वन हराएको छ।" },
+            { q: "शहरीकरणले कति पानी स्रोत प्रभावित हुन्छ?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै पानी स्रोत प्रभावित हुन्छ।" },
+            { q: "जलवायु परिवर्तनले कति प्रजाति लोप भएको छ?", options: ["केही", "धेरै", "एक", "शून्य"], answer: "केही", explanation: "केही प्रजाति लोप भएको छ।" },
+            { q: "जैविक विविधताको लागि कति संरक्षण क्षेत्र छन्?", options: ["२०", "१५", "२५", "३०"], answer: "२०", explanation: "२० संरक्षण क्षेत्र छन्।" }
+        ];
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        const quizContainer = document.getElementById('quiz');
+        const scoreContainer = document.getElementById('score');
+        const currentScore = document.getElementById('current-score');
+        const progressBar = document.getElementById('progress');
+        const timerDisplay = document.getElementById('timer');
+        const resultsBtn = document.getElementById('results-btn');
+        let score = 0;
+        let answeredQuestions = 0;
+        let timeElapsed = 0;
+        let timerInterval;
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeElapsed++;
+                const minutes = Math.floor(timeElapsed / 60).toString().padStart(2, '0');
+                const seconds = (timeElapsed % 60).toString().padStart(2, '0');
+                timerDisplay.textContent = `समय: ${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function updateProgress() {
+            const progressPercentage = (answeredQuestions / questions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+        }
+
+        function showResults() {
+            quizContainer.style.display = 'none';
+            scoreContainer.textContent = `फाइनल स्कोर: ${score} बाट ${questions.length} (${((score / questions.length) * 100).toFixed(2)}%)`;
+            resultsBtn.style.display = 'block';
+            resultsBtn.onclick = () => {
+                quizContainer.style.display = 'block';
+                scoreContainer.textContent = '';
+                resultsBtn.style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                location.reload(); // Reset the quiz
+            };
+            clearInterval(timerInterval);
+        }
+
+        questions.forEach((q, i) => {
+            const div = document.createElement('div');
+            div.classList.add('question');
+            div.innerHTML = `<p>${i + 1}. ${q.q}</p>`;
+
+            const optsDiv = document.createElement('div');
+            optsDiv.classList.add('options');
+
+            const explanationDiv = document.createElement('div');
+            explanationDiv.classList.add('explanation');
+            explanationDiv.textContent = q.explanation;
+
+            const shuffled = shuffle(q.options.map(opt => ({ text: opt, isCorrect: opt === q.answer })));
+
+            shuffled.forEach(({ text, isCorrect }) => {
+                const btn = document.createElement('button');
+                btn.textContent = text;
+                btn.onclick = () => {
+                    if (btn.classList.contains('correct') || btn.classList.contains('wrong')) return;
+                    answeredQuestions++;
+                    updateProgress();
+                    currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+
+                    if (isCorrect) {
+                        btn.classList.add('correct');
+                        score++;
+                        currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+                    } else {
+                        btn.classList.add('wrong');
+                        optsDiv.querySelectorAll('button').forEach(b => {
+                            if (b.textContent === q.answer) {
+                                b.classList.add('correct');
+                            }
+                        });
+                    }
+
+                    optsDiv.querySelectorAll('button').forEach(b => b.disabled = true);
+                    explanationDiv.style.display = 'block';
+
+                    if (answeredQuestions === questions.length) {
+                        showResults();
+                    }
+                };
+                optsDiv.appendChild(btn);
+            });
+
+            div.appendChild(optsDiv);
+            div.appendChild(explanationDiv);
+            quizContainer.appendChild(div);
+        });
+
+        startTimer();
+    </script>
+</body>
+</html>
