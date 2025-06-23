@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>नेपाल नागरिक उड्डयन प्राधिकरण कर्मचारीहरुको सेवाका शर्त र सुविधा सम्वन्धी नियमावली, २०५६</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #c3dafe);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3a8a;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .progress-bar {
+            background: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .progress {
+            background: #3b82f6;
+            height: 100%;
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .question {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .question:hover {
+            transform: translateY(-2px);
+        }
+
+        .question p {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+        }
+
+        .options button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            color: #374151;
+        }
+
+        .options button:hover:not(:disabled) {
+            background: #f3f4f6;
+            border-color: #3b82f6;
+            transform: translateX(4px);
+        }
+
+        .options button.correct {
+            background: #bbf7d0;
+            border-color: #22c55e;
+            color: #166534;
+        }
+
+        .options button.wrong {
+            background: #fecaca;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .options button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .explanation {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #eff6ff;
+            border-radius: 8px;
+            color: #1e3a8a;
+            font-size: 0.95rem;
+        }
+
+        .score-container {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .results-btn {
+            display: none;
+            margin: 1rem auto;
+            padding: 0.75rem 2rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .results-btn:hover {
+            background: #2563eb;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+
+            .quiz-container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .question p {
+                font-size: 1rem;
+            }
+
+            .options button {
+                font-size: 0.9rem;
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>नेपाल नागरिक उड्डयन प्राधिकरण कर्मचारीहरुको सेवाका शर्त र सुविधा सम्वन्धी नियमावली, २०५६</h1>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <div class="timer" id="timer">समय: 00:00</div>
+            <div class="score" id="current-score">स्कोर: 0/70</div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div id="quiz"></div>
+        <div class="score-container">
+            <div class="score" id="score"></div>
+            <button class="results-btn" id="results-btn">नतिजा हेर्नुहोस्</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // Easy Questions (1-42)
+            { q: "दफा १ मा कस्तो विषय उल्लेख गरिएको छ?", options: ["परिचय", "अवकाश", "आचरण", "नियुक्ति"], answer: "परिचय", explanation: "दफा १ मा परिचय र प्रारम्भिक व्यवस्था उल्लेख गरिएको छ।" },
+            { q: "नेपाल नागरिक उड्डयन प्राधिकरणको प्रधान कार्यालय कहाँ छ?", options: ["पोखरा", "वबरमहल, काठमाडौं", "विराटनगर", "भक्तपुर"], answer: "वबरमहल, काठमाडौं", explanation: "प्रधान कार्यालय वबरमहल, काठमाडौंमा अवस्थित छ।" },
+            { q: "नियमावली २०५६ कति मितिमा स्वीकृत भएको हो?", options: ["२०४४/१९/२", "२०५४/१९/२", "२०६४/१९/२", "२०५६/१९/२"], answer: "२०५६/१९/२", explanation: "नियमावली २०५६ मा स्वीकृत भएको हो, तर मिति स्पष्ट नभएकोले अनुमानित छ।" },
+            { q: "पहिलो संशोधन कति मितिमा भएको हो?", options: ["२०५०/१९/१८", "२०४४/१९/२", "२०६०/१९/१८", "२०५४/१९/१"], answer: "२०५०/१९/१८", explanation: "पहिलो संशोधन २०५०/१९/१८ मा भएको छ।" },
+            { q: "नियमावलीको प्रकाशन कुन मितिमा भएको हो?", options: ["२००६ चैत्र", "२०१६ चैत्र", "२००५ चैत्र", "२०१५ चैत्र"], answer: "२००६ चैत्र", explanation: "प्रकाशन मिति २००६ चैत्रमा उल्लेख छ।" },
+            { q: "नियमावलीको मुद्रक को हो?", options: ["मल्ल ठकुरी प्रेस", "नेपाल प्रेस", "काठमाडौं प्रेस", "जनता प्रेस"], answer: "मल्ल ठकुरी प्रेस", explanation: "मुद्रकको रूपमा मल्ल ठकुरी प्रेस उल्लेख छ।" },
+            { q: "परिच्छेद ९ मा कस्तो विषय समावेश छ?", options: ["नियुक्ति", "अवकाश र उपदान", "आचरण", "तलब"], answer: "अवकाश र उपदान", explanation: "परिच्छेद ९ मा अवकाश र उपदान सम्बन्धी व्यवस्था छ।" },
+            { q: "अनिवार्य अवकाशको व्यवस्था कुन दफामा छ?", options: ["९.१", "९.२", "९.३", "९.४"], answer: "९.१", explanation: "अनिवार्य अवकाश दफा ९.१ मा उल्लेख छ।" },
+            { q: "मृत्युदर अवकाश कुन दफामा उल्लेख छ?", options: ["९.५", "९.६", "९.७", "९.८"], answer: "९.५", explanation: "मृत्युदर अवकाश दफा ९.५ मा उल्लेख छ।" },
+            { q: "उपदान वा निवृत्तिभरण मध्ये कुन रोज्न सकिन्छ?", options: ["दुवै", "केवल उपदान", "केवल निवृत्तिभरण", "कुनै पनि होइन"], answer: "केवल उपदान", explanation: "एकमध्ये मात्र रोज्न सकिन्छ, जुन दफा ९.५(ख) मा छ।" },
+            { q: "परिच्छेद १० मा कस्तो विषय छ?", options: ["आचरण", "अनुशासन", "नियुक्ति", "तलब"], answer: "आचरण", explanation: "परिच्छेद १० मा आचरण सम्बन्धी व्यवस्था छ।" },
+            { q: "अनुशासन र आज्ञापालन कुन दफामा उल्लेख छ?", options: ["१०.१", "१०.२", "१०.३", "१०.४"], answer: "१०.१", explanation: "अनुशासन दफा १०.१ मा उल्लेख छ।" },
+            { q: "कार्यालय समय पालन कुन दफामा छ?", options: ["१०.२", "१०.३", "१०.४", "१०.५"], answer: "१०.२", explanation: "कार्यालय समय पालन दफा १०.२ मा छ।" },
+            { q: "कर्मचारीले कस्तो प्रतिनिधित्व गर्न नपाइने?", options: ["राजनीतिक", "सामाजिक", "व्यावसायिक", "शैक्षिक"], answer: "राजनीतिक", explanation: "राजनीतिक प्रतिनिधित्व दफा १०.४ मा प्रतिबन्धित छ।" },
+            { q: "स्वघोषणा फाराम कुन अनुसूचीमा छ?", options: ["अनुसूची-१", "अनुसूची-१५", "अनुसूची-२", "अनुसूची-५"], answer: "अनुसूची-१५", explanation: "स्वघोषणा फाराम अनुसूची-१५ मा छ।" },
+            { q: "उम्मेदवारको उमेर निर्धारण कुन दफामा हुन्छ?", options: ["दफा १.१(क)", "दफा १.१(ख)", "दफा १.१(ग)", "दफा १.१(घ)"], answer: "दफा १.१(क)", explanation: "उमेर निर्धारण दफा १.१(क) मा उल्लेख छ।" },
+            { q: "नामावली तयार गर्ने दफा कुन हो?", options: ["दफा १.१(ग)", "दफा १.१(क)", "दफा १.१(ख)", "दफा १.१(घ)"], answer: "दफा १.१(ग)", explanation: "नामावली तयारी दफा १.१(ग) मा छ।" },
+            { q: "अन्तर्वार्ता सम्बन्धी व्यवस्था कुन दफामा छ?", options: ["दफा १.१(ख)", "दफा १.१(ग)", "दफा १.१(घ)", "दफा १.१(ङ)"], answer: "दफा १.१(ख)", explanation: "अन्तर्वार्ता दफा १.१(ख) मा उल्लेख छ।" },
+            { q: "योग्यताक्रम कुन दफामा उल्लेख छ?", options: ["दफा १.१(ङ)", "दफा १.१(क)", "दफा १.१(ख)", "दफा १.१(ग)"], answer: "दफा १.१(ङ)", explanation: "योग्यताक्रम दफा १.१(ङ) मा छ।" },
+            { q: "प्रतीक्षा सूची कुन दफामा हुन्छ?", options: ["दफा १.१(घ)", "दफा १.१(ङ)", "दफा १.१(क)", "दफा १.१(ख)"], answer: "दफा १.१(घ)", explanation: "प्रतीक्षा सूची दफा १.१(घ) मा उल्लेख छ।" },
+            { q: "पाश्चातिक निवृत्तिभरण कुन दफामा छ?", options: ["९.७", "९.८", "९.९", "९.१०"], answer: "९.९", explanation: "पाश्चातिक निवृत्तिभरण दफा ९.९ मा छ।" },
+            { q: "बेपत्ता कर्मचारीको निवृत्तिभरण कुन दफामा उल्लेख छ?", options: ["९.१०", "९.११", "९.१२", "९.१३"], answer: "९.१०", explanation: "बेपत्ता कर्मचारीको व्यवस्था दफा ९.१० मा छ।" },
+            { q: "पदावधि सम्बन्धी व्यवस्था कुन दफामा छ?", options: ["९.११", "९.१२", "९.१३", "९.१४"], answer: "९.११", explanation: "पदावधि दफा ९.११ मा उल्लेख छ।" },
+            { q: "कर्मचारीले कस्तो कर्जा नपाउने?", options: ["सामाजिक कर्जा", "अन्य कर्जा बाहेक नागरिक लगानी कोष", "व्यक्तिगत कर्जा", "व्यावसायिक कर्जा"], answer: "अन्य कर्जा बाहेक नागरिक लगानी कोष", explanation: "दफा ९.१३ मा अन्य कर्जा प्रतिबन्ध छ।" },
+            { q: "स्वघोषणा फाराममा कस्तो जानकारी दिनुपर्छ?", options: ["विदेशी आवासीय अनुमति", "परिवारको विवरण", "सम्पत्ति विवरण", "शैक्षिक योग्यता"], answer: "विदेशी आवासीय अनुमति", explanation: "स्वघोषणा फाराममा विदेशी अनुमति सम्बन्धी जानकारी दिनुपर्छ।" },
+            { q: "दफा १ मा कति पटक 'यद्धमना' दोहोरिएको छ?", options: ["१", "५", "१०", "१५"], answer: "५", explanation: "दफा १ मा 'यद्धमना' ५ पटक देखिन्छ।" },
+            { q: "नियमावलीको पूर्ण नाम के हो?", options: ["कर्मचारी नियुक्ति नियमावली", "सेवा शर्त र सुविधा नियमावली", "हवाई सेवा नियमावली", "आचरण नियमावली"], answer: "सेवा शर्त र सुविधा नियमावली", explanation: "नियमावलीको नाम स्पष्ट रूपमा उल्लेख छ।" },
+            { q: "प्रकाशक को हो?", options: ["नेपाल सरकार", "नेपाल नागरिक उड्डयन प्राधिकरण", "मल्ल ठकुरी प्रेस", "काठमाडौं प्रेस"], answer: "नेपाल नागरिक उड्डयन प्राधिकरण", explanation: "प्रकाशक प्राधिकरण हो।" },
+            { q: "फोन नम्बर कति हो?", options: ["फोन: धट्भ११२२२३०", "फोन: ०१-४२२३४५६", "फोन: ०१-५५५५५५५", "फोन: ०१-६६६६६६६"], answer: "फोन: धट्भ११२२२३०", explanation: "फोन नम्बर दस्तावेजमा यही उल्लेख छ।" },
+            { q: "दफा ९.५(क) मा के उल्लेख छ?", options: ["मृत्युदर फाराम", "उपदान वा निवृत्तिभरण", "सेवा अवधि", "पाश्चातिक निवृत्तिभरण"], answer: "मृत्युदर फाराम", explanation: "दफा ९.५(क) मा मृत्युदर फाराम उल्लेख छ।" },
+            { q: "दफा १.१(ङ) मा कति व्यवस्था उल्लेख छ?", options: ["१", "२", "३", "४"], answer: "२", explanation: "योग्यताक्रम र सिफारिस दुई व्यवस्था हुन्।" },
+            { q: "अनुसूची-१५ कुन नियमसँग सम्बन्धित छ?", options: ["नियुक्ति", "अवकाश", "आचरण", "स्वघोषणा"], answer: "स्वघोषणा", explanation: "अनुसूची-१५ स्वघोषणा फारामसँग सम्बन्धित छ।" },
+            { q: "दफा १०.३ मा के उल्लेख छ?", options: ["कार्यालय समय", "आज्ञापालन", "प्रतिनिधित्व", "अवैध सम्पर्क"], answer: "आज्ञापालन", explanation: "दफा १०.३ मा आज्ञापालन उल्लेख छ।" },
+            { q: "दफा ९.७ मा के उल्लेख छ?", options: ["पाश्चातिक निवृत्तिभरण", "मृत्युदर", "उपदान", "अनिवार्य अवकाश"], answer: "पाश्चातिक निवृत्तिभरण", explanation: "दफा ९.७ मा पाश्चातिक व्यवस्था छ।" },
+            { q: "स्वघोषणा फाराम कसलाई बुझाउनुपर्छ?", options: ["महानिर्देशक", "प्रहरी", "हवाई कम्पनी", "स्थानीय निकाय"], answer: "महानिर्देशक", explanation: "स्वघोषणा महानिर्देशकलाई बुझाउनुपर्छ।" },
+            { q: "दफा ९.८ मा के उल्लेख छ?", options: ["उपदान", "विशेष व्यवस्था", "मृत्युदर", "अनिवार्य अवकाश"], answer: "उपदान", explanation: "दफा ९.८ मा उपदान उल्लेख छ।" },
+            { q: "दफा १.१(ख) मा कति परीक्षा उल्लेख छ?", options: ["१", "२", "३", "४"], answer: "२", explanation: "प्रयोगात्मक र अन्तर्वार्ता दुई परीक्षा छन्।" },
+            { q: "दफा १०.१ मा कति विषय उल्लेख छन्?", options: ["१", "२", "३", "४"], answer: "२", explanation: "अनुशासन र आज्ञापालन दुई विषय छन्।" },
+            { q: "नियमावलीको पहिलो पृष्ठमा कति '१' दोहोरिएको छ?", options: ["५०", "१००", "१५०", "२००"], answer: "१५०", explanation: "पहिलो पृष्ठमा '१' करिब १५० पटक दोहोरिएको छ।" },
+            { q: "दफा ९.१२ मा के उल्लेख छ?", options: ["पदावधि", "उपदान", "मृत्युदर", "अनिवार्य अवकाश"], answer: "पदावधि", explanation: "दफा ९.१२ मा पदावधि उल्लेख छ।" },
+            { q: "दफा १.१(ग) मा कति प्रक्रिया उल्लेख छ?", options: ["१", "२", "३", "४"], answer: "१", explanation: "नामावली तयारी एउटा प्रक्रिया हो।" },
+            { q: "दफा १०.४ मा कति प्रतिबन्ध उल्लेख छन्?", options: ["१", "२", "३", "४"], answer: "१", explanation: "राजनीतिक प्रतिनिधित्व एउटा प्रतिबन्ध हो।" },
+            { q: "दफा ९.९(क) मा के उल्लेख छ?", options: ["उपदान", "पाश्चातिक निवृत्तिभरण", "मृत्युदर", "विशेष व्यवस्था"], answer: "पाश्चातिक निवृत्तिभरण", explanation: "दफा ९.९(क) मा पाश्चातिक व्यवस्था छ।" },
+            { q: "दफा ९.६(ग) मा के उल्लेख छ?", options: ["सेवा अवधि गणना", "मृत्युदर फाराम", "उपदान", "पाश्चातिक निवृत्तिभरण"], answer: "सेवा अवधि गणना", explanation: "दफा ९.६(ग) मा सेवा अवधि गणना उल्लेख छ।" },
+            { q: "दफा १.१(ङ) मा कति सिफारिस उल्लेख छ?", options: ["१", "२", "३", "४"], answer: "१", explanation: "एक सिफारिस उल्लेख छ।" },
+            { q: "दफा १०.५ मा कति व्यवस्था उल्लेख छन्?", options: ["१", "२", "३", "४"], answer: "१", explanation: "अवैध सम्पर्क एउटा व्यवस्था हो।" },
+
+            // Medium Questions (43-60)
+            { q: "नियमावलीको दोस्रो संशोधन कति मितिमा भएको हो?", options: ["२०५४/१९/६", "२०५४/१९/९", "२०५४/१९/१८", "२०५४/१९/२"], answer: "२०५४/१९/६", explanation: "दोस्रो संशोधन २०५४/१९/६ मा भएको छ।" },
+            { q: "परिच्छेद १० मा अनुशासन कति दफामा विस्तार गरिएको छ?", options: ["४", "५", "६", "७"], answer: "५", explanation: "अनुशासन ५ दफामा विस्तार गरिएको छ।" },
+            { q: "दफा १.१(क) मा कस्तो प्रक्रिया समावेश छ?", options: ["उमेर निर्धारण", "अन्तर्वार्ता", "योग्यताक्रम", "प्रतीक्षा सूची"], answer: "उमेर निर्धारण", explanation: "दफा १.१(क) मा उमेर निर्धारण छ।" },
+            { q: "नियमावलीमा कति पटक संशोधन भएको देखिन्छ?", options: ["१", "२", "३", "४"], answer: "२", explanation: "दुई संशोधन उल्लेख छ।" },
+            { q: "दफा ९.५(ख) मा के उल्लेख छ?", options: ["उपदान वा निवृत्तिभरण रोज्न सकिने", "मृत्युदर फाराम", "सेवा अवधि गणना", "पाश्चातिक निवृत्तिभरण"], answer: "उपदान वा निवृत्तिभरण रोज्न सकिने", explanation: "दफा ९.५(ख) मा यो व्यवस्था छ।" },
+            { q: "दफा १.१(ङ) मा कस्तो व्यवस्था छ?", options: ["योग्यताक्रम र सिफारिस", "उमेर निर्धारण", "नामावली तयारी", "अन्तर्वार्ता"], answer: "योग्यताक्रम र सिफारिस", explanation: "दफा १.१(ङ) मा यी दुई छन्।" },
+            { q: "दफा ९.११ मा कस्तो विशेष व्यवस्था छ?", options: ["पदावधि", "अनिवार्य अवकाश", "मृत्युदर", "उपदान"], answer: "पदावधि", explanation: "दफा ९.११ मा पदावधि विशेष व्यवस्था छ।" },
+            { q: "दफा १०.४ मा कस्तो प्रतिबन्ध छ?", options: ["अवैध सम्पर्क", "राजनीतिक प्रतिनिधित्व", "युनियन सदस्यता", "कार्यालय समय"], answer: "राजनीतिक प्रतिनिधित्व", explanation: "दफा १०.४ मा यो प्रतिबन्ध छ।" },
+            { q: "अनुसूची-१५ मा कस्तो फाराम हुन्छ?", options: ["स्वघोषणा फाराम", "निवृत्तिभरण फाराम", "उपदान फाराम", "नियुक्ति फाराम"], answer: "स्वघोषणा फाराम", explanation: "अनुसूची-१५ मा स्वघोषणा फाराम छ।" },
+            { q: "दफा ९.६(ख) मा के उल्लेख हुन्छ?", options: ["सेवा अवधि गणना", "मृत्युदर फाराम", "उपदान र निवृत्तिभरण", "पाश्चातिक व्यवस्था"], answer: "मृत्युदर फाराम", explanation: "दफा ९.६(ख) मा यो उल्लेख छ।" },
+            { q: "दफा १.१(ख) मा कस्तो परीक्षा समावेश छ?", options: ["प्रयोगात्मक र अन्तर्वार्ता", "लिखित परीक्षा", "उमेर जाँच", "योग्यता परीक्षण"], answer: "प्रयोगात्मक र अन्तर्वार्ता", explanation: "दफा १.१(ख) मा यी परीक्षा छन्।" },
+            { q: "दफा ९.१० मा कस्तो व्यवस्था छ?", options: ["बेपत्ता कर्मचारीको निवृत्तिभरण", "अनिवार्य अवकाश", "मृत्युदर", "उपदान"], answer: "बेपत्ता कर्मचारीको निवृत्तिभरण", explanation: "दफा ९.१० मा यो व्यवस्था छ।" },
+            { q: "दफा १.१(घ) मा कति गोपनीयता उल्लेख छ?", options: ["१", "२", "३", "४"], answer: "१", explanation: "प्रतीक्षा सूची गोप्य एउटा हो।" },
+            { q: "दफा ९.१२ मा कति विशेष व्यवस्था उल्लेख छन्?", options: ["१", "२", "३", "४"], answer: "१", explanation: "पदावधि एउटा विशेष व्यवस्था हो।" },
+            { q: "दफा १.१(ङ) मा कति प्रक्रिया उल्लेख छन्?", options: ["१", "२", "३", "४"], answer: "२", explanation: "योग्यताक्रम र सिफारिस दुई प्रक्रिया छन्।" },
+            { q: "दफा १०.३ मा कति आज्ञापालन उल्लेख छन्?", options: ["१", "२", "३", "४"], answer: "१", explanation: "एउटा आज्ञापालन उल्लेख छ।" },
+            { q: "दफा ९.७ मा कति पाश्चातिक व्यवस्था छन्?", options: ["१", "२", "३", "४"], answer: "१", explanation: "एउटा पाश्चातिक व्यवस्था छ।" },
+            { q: "दफा ९.६(ग) मा कति सेवा अवधि गणना छन्?", options: ["१", "२", "३", "४"], answer: "१", explanation: "एउटा सेवा अवधि गणना उल्लेख छ।" },
+
+            // Hard Questions (61-70)
+            { q: "दफा ९.५(ग) मा कस्तो प्रक्रिया उल्लेख छ?", options: ["मृत्युदर फाराम पाउन", "सेवा अवधि गणना", "उपदान वितरण", "पाश्चातिक निवृत्तिभरण"], answer: "मृत्युदर फाराम पाउन", explanation: "दफा ९.५(ग) मा यो प्रक्रिया छ।" },
+            { q: "दफा १०.५ मा कस्तो व्यवस्था उल्लेख छ?", options: ["अवैध सम्पर्क नगर्ने", "कार्यालय समय पालन", "अनुशासन", "प्रतिनिधित्व प्रतिबन्ध"], answer: "अवैध सम्पर्क नगर्ने", explanation: "दफा १०.५ मा यो व्यवस्था छ।" },
+            { q: "नियमावलीको प्रकाशन मितिको आधारमा कुन वर्षमा यो प्रभावकारी भएको हुन सक्छ?", options: ["२००६", "२०१६", "२०५६", "२०६६"], answer: "२००६", explanation: "प्रकाशन मिति २००६ चैत्रले प्रभावकारीता संकेत गर्छ।" },
+            { q: "दफा ९.९(ख) मा कस्तो व्यवस्था छ?", options: ["दीक्षिक र मन्त्री बृत्ति", "पाश्चातिक निवृत्तिभरण", "उपदान वितरण", "मृत्युदर फाराम"], answer: "दीक्षिक र मन्त्री बृत्ति", explanation: "दफा ९.९(ख) मा यो उल्लेख छ।" },
+            { q: "दफा १.१(घ) मा कस्तो गोपनीयता उल्लेख छ?", options: ["प्रतीक्षा सूची गोप्य", "उमेर निर्धारण", "अन्तर्वार्ता प्रक्रिया", "योग्यता जाँच"], answer: "प्रतीक्षा सूची गोप्य", explanation: "दफा १.१(घ) मा यो गोपनीयता छ।" },
+            { q: "दफा ९.१४ मा कस्तो विशेष व्यवस्था हुन्छ?", options: ["पदावधि सम्बन्धी", "अनिवार्य अवकाश", "मृत्युदर", "उपदान"], answer: "पदावधि सम्बन्धी", explanation: "दफा ९.१४ मा पदावधि विशेष व्यवस्था छ।" },
+            { q: "स्वघोषणा फाराममा कस्तो दायित्व उल्लेख छ?", options: ["कानुनी दण्ड सहन", "सेवा अवधि बढाउन", "तलब वृद्धि", "पदोन्नति"], answer: "कानुनी दण्ड सहन", explanation: "स्वघोषणा फाराममा कानुनी दायित्व उल्लेख छ।" },
+            { q: "दफा ९.१३ मा कस्तो व्यवस्था उल्लेख छ?", options: ["मन्न्यम कोष बाहेक अन्य कर्जा नपाउने", "अनिवार्य अवकाश", "मृत्युदर", "उपदान"], answer: "मन्न्यम कोष बाहेक अन्य कर्जा नपाउने", explanation: "दफा ९.१३ मा यो व्यवस्था छ।" },
+            { q: "दफा ९.९(क) मा कति पाश्चातिक व्यवस्था छन्?", options: ["१", "२", "३", "४"], answer: "१", explanation: "एउटा पाश्चातिक व्यवस्था उल्लेख छ।" },
+            { q: "दफा १.१(ख) मा कति चरणको परीक्षा उल्लेख छन्?", options: ["१", "२", "३", "४"], answer: "२", explanation: "प्रयोगात्मक र अन्तर्वार्ता दुई चरण छन्।" }
+        ];
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        const quizContainer = document.getElementById('quiz');
+        const scoreContainer = document.getElementById('score');
+        const currentScore = document.getElementById('current-score');
+        const progressBar = document.getElementById('progress');
+        const timerDisplay = document.getElementById('timer');
+        const resultsBtn = document.getElementById('results-btn');
+        let score = 0;
+        let answeredQuestions = 0;
+        let timeElapsed = 0;
+        let timerInterval;
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeElapsed++;
+                const minutes = Math.floor(timeElapsed / 60).toString().padStart(2, '0');
+                const seconds = (timeElapsed % 60).toString().padStart(2, '0');
+                timerDisplay.textContent = `समय: ${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function updateProgress() {
+            const progressPercentage = (answeredQuestions / questions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+        }
+
+        function showResults() {
+            quizContainer.style.display = 'none';
+            scoreContainer.textContent = `फाइनल स्कोर: ${score} बाट ${questions.length} (${((score / questions.length) * 100).toFixed(2)}%)`;
+            resultsBtn.style.display = 'block';
+            resultsBtn.onclick = () => {
+                quizContainer.style.display = 'block';
+                scoreContainer.textContent = '';
+                resultsBtn.style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                location.reload(); // Reset the quiz
+            };
+            clearInterval(timerInterval);
+        }
+
+        questions.forEach((q, i) => {
+            const div = document.createElement('div');
+            div.classList.add('question');
+            div.innerHTML = `<p>${i + 1}. ${q.q}</p>`;
+
+            const optsDiv = document.createElement('div');
+            optsDiv.classList.add('options');
+
+            const explanationDiv = document.createElement('div');
+            explanationDiv.classList.add('explanation');
+            explanationDiv.textContent = q.explanation;
+
+            const shuffled = shuffle(q.options.map(opt => ({ text: opt, isCorrect: opt === q.answer })));
+
+            shuffled.forEach(({ text, isCorrect }) => {
+                const btn = document.createElement('button');
+                btn.textContent = text;
+                btn.onclick = () => {
+                    if (btn.classList.contains('correct') || btn.classList.contains('wrong')) return;
+                    answeredQuestions++;
+                    updateProgress();
+                    currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+
+                    if (isCorrect) {
+                        btn.classList.add('correct');
+                        score++;
+                        currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+                    } else {
+                        btn.classList.add('wrong');
+                        optsDiv.querySelectorAll('button').forEach(b => {
+                            if (b.textContent === q.answer) {
+                                b.classList.add('correct');
+                            }
+                        });
+                    }
+
+                    optsDiv.querySelectorAll('button').forEach(b => b.disabled = true);
+                    explanationDiv.style.display = 'block';
+
+                    if (answeredQuestions === questions.length) {
+                        showResults();
+                    }
+                };
+                optsDiv.appendChild(btn);
+            });
+
+            div.appendChild(optsDiv);
+            div.appendChild(explanationDiv);
+            quizContainer.appendChild(div);
+        });
+
+        startTimer();
+    </script>
+</body>
+</html>
