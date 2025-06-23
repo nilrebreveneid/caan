@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>नेपालको भौगोलिक अवस्था र प्राकृतिक स्रोत मोक्ड टेस्ट</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #c3dafe);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3a8a;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .progress-bar {
+            background: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .progress {
+            background: #3b82f6;
+            height: 100%;
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .question {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .question:hover {
+            transform: translateY(-2px);
+        }
+
+        .question p {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+        }
+
+        .options button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            color: #374151;
+        }
+
+        .options button:hover:not(:disabled) {
+            background: #f3f4f6;
+            border-color: #3b82f6;
+            transform: translateX(4px);
+        }
+
+        .options button.correct {
+            background: #bbf7d0;
+            border-color: #22c55e;
+            color: #166534;
+        }
+
+        .options button.wrong {
+            background: #fecaca;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .options button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .explanation {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #eff6ff;
+            border-radius: 8px;
+            color: #1e3a8a;
+            font-size: 0.95rem;
+        }
+
+        .score-container {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .results-btn {
+            display: none;
+            margin: 1rem auto;
+            padding: 0.75rem 2rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .results-btn:hover {
+            background: #2563eb;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+
+            .quiz-container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .question p {
+                font-size: 1rem;
+            }
+
+            .options button {
+                font-size: 0.9rem;
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>नेपालको भौगोलिक अवस्था र प्राकृतिक स्रोत मोक्ड टेस्ट</h1>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <div class="timer" id="timer">समय: 00:00</div>
+            <div class="score" id="current-score">स्कोर: 0/30</div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div id="quiz"></div>
+        <div class="score-container">
+            <div class="score" id="score"></div>
+            <button class="results-btn" id="results-btn">नतिजा हेर्नुहोस्</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // Easy Questions (1-18)
+            { q: "नेपालको कुल क्षेत्रफल कति हो?", options: ["१,४७,१८१ वर्ग कि.मि.", "१,२०,००० वर्ग कि.मि.", "१,६०,००० वर्ग कि.मि.", "१,८०,००० वर्ग कि.मि."], answer: "१,४७,१८१ वर्ग कि.मि.", explanation: "नेपालको कुल क्षेत्रफल १,४७,१८१ वर्ग कि.मि. हो।" },
+            { q: "नेपालको भौगोलिक संरचनामा कति क्षेत्र ताराई ओगट्छ?", options: ["१७%", "२५%", "३५%", "४५%"], answer: "१७%", explanation: "ताराईले १७% ओगट्छ।" },
+            { q: "नेपालको प्रमुख प्राकृतिक स्रोत के हो?", options: ["जलस्रोत", "सुन", "तामा", "कोइला"], answer: "जलस्रोत", explanation: "जलस्रोत प्रमुख स्रोत हो।" },
+            { q: "नेपालको सबैभन्दा उचाइ भएको स्थान कहाँ हो?", options: ["सगरमाथा", "अन्नपूर्ण", "कञ्चनजङ्घा", "धौलागिरि"], answer: "सगरमाथा", explanation: "सगरमाथा सबैभन्दा उचाइ हो।" },
+            { q: "नेपालको सबैभन्दा निम्न स्थान कहाँ हो?", options: ["खाँडो", "काठमाडौं", "पोखरा", "विराटनगर"], answer: "खाँडो", explanation: "खाँडो सबैभन्दा निम्न हो।" },
+            { q: "नेपालको पहाडी क्षेत्र कति प्रतिशत छ?", options: ["६८%", "५५%", "७५%", "८०%"], answer: "६८%", explanation: "पहाडी क्षेत्र ६८% छ।" },
+            { q: "नेपालको हिमाली क्षेत्र कति प्रतिशत छ?", options: ["१५%", "२०%", "२५%", "३०%"], answer: "१५%", explanation: "हिमाली क्षेत्र १५% छ।" },
+            { q: "नेपालको जंगल क्षेत्र कति प्रतिशत छ?", options: ["३९.०९%", "३०%", "४५%", "५०%"], answer: "३९.०९%", explanation: "जंगल क्षेत्र ३९.०९% छ।" },
+            { q: "नेपालको प्रमुख नदी कुन हो?", options: ["कोशी", "नारायणी", "कर्णाली", "महाकाली"], answer: "कोशी", explanation: "कोशी प्रमुख नदी हो।" },
+            { q: "नेपालको खनिज स्रोतमा कुन पाइन्छ?", options: ["स्याङ्गजा", "ललितपुर", "काठमाडौं", "पोखरा"], answer: "स्याङ्गजा", explanation: "स्याङ्गजामा खनिज पाइन्छ।" },
+            { q: "नेपालको भौगोलिक आकार के हो?", options: ["आयताकार", "वर्गाकार", "त्रिकोणीय", "गोलाकार"], answer: "आयताकार", explanation: "आयताकार आकार हो।" },
+            { q: "नेपालको उचाइको औसत कति हो?", options: ["२००० मिटर", "१५०० मिटर", "२५०० मिटर", "३००० मिटर"], answer: "२००० मिटर", explanation: "औसत उचाइ २००० मिटर छ।" },
+            { q: "नेपालको सबैभन्दा लामो नदी कुन हो?", options: ["कर्णाली", "कोशी", "नारायणी", "महाकाली"], answer: "कर्णाली", explanation: "कर्णाली सबैभन्दा लामो हो।" },
+            { q: "नेपालको प्रमुख वन्यजन्तु संरक्षण क्षेत्र कहाँ हो?", options: ["चितवन", "पोखरा", "काठमाडौं", "विराटनगर"], answer: "चितवन", explanation: "चितवनमा संरक्षण क्षेत्र हो।" },
+            { q: "नेपालको जलविद्युत् सम्भावना कति हो?", options: ["४३,००० मेगावाट", "३०,००० मेगावाट", "५०,००० मेगावाट", "६०,००० मेगावाट"], answer: "४३,००० मेगावाट", explanation: "जलविद्युत् सम्भावना ४३,००० मेगावाट छ।" },
+            { q: "नेपालको प्रमुख खनिज कुन हो?", options: ["अयस्क", "सुन", "चाँदी", "तामा"], answer: "अयस्क", explanation: "अयस्क प्रमुख खनिज हो।" },
+            { q: "नेपालको भौगोलिक संरचना कति भागमा विभाजित छ?", options: ["तीन", "दुई", "चार", "पाँच"], answer: "तीन", explanation: "तीन भागमा विभाजित छ।" },
+            { q: "नेपालको सबैभन्दा ठूलो ताल कुन हो?", options: ["रारा", "फेवा", "गोक्यो", "तिलिचो"], answer: "रारा", explanation: "रारा सबैभन्दा ठूलो ताल हो।" },
+
+            // Medium Questions (19-26)
+            { q: "नेपालको पहाडी क्षेत्रले कति प्रतिशत भूमि ओगट्छ?", options: ["६८%", "५५%", "७५%", "८०%"], answer: "६८%", explanation: "पहाडी क्षेत्रले ६८% ओगट्छ।" },
+            { q: "नेपालको हिमाली क्षेत्रको उचाइ कति हो?", options: ["४,००० मिटर माथि", "३,००० मिटर", "२,००० मिटर", "१,००० मिटर"], answer: "४,००० मिटर माथि", explanation: "हिमाली क्षेत्र ४,००० मिटर माथि छ।" },
+            { q: "नेपालको प्रमुख वन क्षेत्र कहाँ छ?", options: ["सिरहा", "चितवन", "काठमाडौं", "पोखरा"], answer: "चितवन", explanation: "चितवनमा प्रमुख वन क्षेत्र छ।" },
+            { q: "नेपालको जलस्रोत कति प्रतिशत प्रयोग भएको छ?", options: ["१%", "५%", "१०%", "१५%"], answer: "१%", explanation: "जलस्रोतको १% प्रयोग भएको छ।" },
+            { q: "नेपालको खनिज स्रोतको उपयोग कति छ?", options: ["कम", "धेरै", "मध्यम", "शून्य"], answer: "कम", explanation: "खनिज स्रोतको उपयोग कम छ।" },
+            { q: "नेपालको भौगोलिक संरचनामा कति नदी छन्?", options: ["६,००० भन्दा बढी", "५,०००", "४,०००", "३,०००"], answer: "६,००० भन्दा बढी", explanation: "६,००० भन्दा बढी नदी छन्।" },
+            { q: "नेपालको प्रमुख जडीबुटी कहाँ पाइन्छ?", options: ["हिमाल", "ताराई", "पहाड", "काठमाडौं"], answer: "हिमाल", explanation: "हिमालमा जडीबुटी पाइन्छ।" },
+            { q: "नेपालको वन क्षेत्र कति हेक्टर छ?", options: ["५.९६ मिलियन", "४ मिलियन", "६ मिलियन", "७ मिलियन"], answer: "५.९६ मिलियन", explanation: "वन क्षेत्र ५.९६ मिलियन हेक्टर छ।" },
+
+            // Hard Questions (27-30)
+            { q: "नेपालको सबैभन्दा ठूलो हिमनदी कुन हो?", options: ["नङ्गा पर्वत हिमनदी", "खुम्बु हिमनदी", "लाङ्ताङ हिमनदी", "मनाङ हिमनदी"], answer: "खुम्बु हिमनदी", explanation: "खुम्बु हिमनदी सबैभन्दा ठूलो हो।" },
+            { q: "नेपालको सबैभन्दा ठूलो खनिज भण्डार कहाँ छ?", options: ["डोटी", "स्याङ्गजा", "म्याग्दी", "बागलुङ"], answer: "डोटी", explanation: "डोटीमा ठूलो खनिज भण्डार छ।" },
+            { q: "नेपालको जलविद्युत् उत्पादन कति मेगावाट छ?", options: ["१,५००", "२,०००", "२,५००", "३,०००"], answer: "१,५००", explanation: "हाल १,५०० मेगावाट उत्पादन छ।" },
+            { q: "नेपालको जैविक विविधतामा कति प्रजाति छन्?", options: ["११,१६३", "१०,०००", "१२,०००", "१५,०००"], answer: "११,१६३", explanation: "११,१६३ प्रजाति छन्।" }
+        ];
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        const quizContainer = document.getElementById('quiz');
+        const scoreContainer = document.getElementById('score');
+        const currentScore = document.getElementById('current-score');
+        const progressBar = document.getElementById('progress');
+        const timerDisplay = document.getElementById('timer');
+        const resultsBtn = document.getElementById('results-btn');
+        let score = 0;
+        let answeredQuestions = 0;
+        let timeElapsed = 0;
+        let timerInterval;
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeElapsed++;
+                const minutes = Math.floor(timeElapsed / 60).toString().padStart(2, '0');
+                const seconds = (timeElapsed % 60).toString().padStart(2, '0');
+                timerDisplay.textContent = `समय: ${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function updateProgress() {
+            const progressPercentage = (answeredQuestions / questions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+        }
+
+        function showResults() {
+            quizContainer.style.display = 'none';
+            scoreContainer.textContent = `फाइनल स्कोर: ${score} बाट ${questions.length} (${((score / questions.length) * 100).toFixed(2)}%)`;
+            resultsBtn.style.display = 'block';
+            resultsBtn.onclick = () => {
+                quizContainer.style.display = 'block';
+                scoreContainer.textContent = '';
+                resultsBtn.style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                location.reload(); // Reset the quiz
+            };
+            clearInterval(timerInterval);
+        }
+
+        questions.forEach((q, i) => {
+            const div = document.createElement('div');
+            div.classList.add('question');
+            div.innerHTML = `<p>${i + 1}. ${q.q}</p>`;
+
+            const optsDiv = document.createElement('div');
+            optsDiv.classList.add('options');
+
+            const explanationDiv = document.createElement('div');
+            explanationDiv.classList.add('explanation');
+            explanationDiv.textContent = q.explanation;
+
+            const shuffled = shuffle(q.options.map(opt => ({ text: opt, isCorrect: opt === q.answer })));
+
+            shuffled.forEach(({ text, isCorrect }) => {
+                const btn = document.createElement('button');
+                btn.textContent = text;
+                btn.onclick = () => {
+                    if (btn.classList.contains('correct') || btn.classList.contains('wrong')) return;
+                    answeredQuestions++;
+                    updateProgress();
+                    currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+
+                    if (isCorrect) {
+                        btn.classList.add('correct');
+                        score++;
+                        currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+                    } else {
+                        btn.classList.add('wrong');
+                        optsDiv.querySelectorAll('button').forEach(b => {
+                            if (b.textContent === q.answer) {
+                                b.classList.add('correct');
+                            }
+                        });
+                    }
+
+                    optsDiv.querySelectorAll('button').forEach(b => b.disabled = true);
+                    explanationDiv.style.display = 'block';
+
+                    if (answeredQuestions === questions.length) {
+                        showResults();
+                    }
+                };
+                optsDiv.appendChild(btn);
+            });
+
+            div.appendChild(optsDiv);
+            div.appendChild(explanationDiv);
+            quizContainer.appendChild(div);
+        });
+
+        startTimer();
+    </script>
+</body>
+</html>
