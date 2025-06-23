@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>हवाई यातायात र पर्यटन विकास मोक्ड टेस्ट</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #c3dafe);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3a8a;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .progress-bar {
+            background: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .progress {
+            background: #3b82f6;
+            height: 100%;
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .question {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .question:hover {
+            transform: translateY(-2px);
+        }
+
+        .question p {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+        }
+
+        .options button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            color: #374151;
+        }
+
+        .options button:hover:not(:disabled) {
+            background: #f3f4f6;
+            border-color: #3b82f6;
+            transform: translateX(4px);
+        }
+
+        .options button.correct {
+            background: #bbf7d0;
+            border-color: #22c55e;
+            color: #166534;
+        }
+
+        .options button.wrong {
+            background: #fecaca;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .options button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .explanation {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #eff6ff;
+            border-radius: 8px;
+            color: #1e3a8a;
+            font-size: 0.95rem;
+        }
+
+        .score-container {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .results-btn {
+            display: none;
+            margin: 1rem auto;
+            padding: 0.75rem 2rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .results-btn:hover {
+            background: #2563eb;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+
+            .quiz-container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .question p {
+                font-size: 1rem;
+            }
+
+            .options button {
+                font-size: 0.9rem;
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>हवाई यातायात र पर्यटन विकास मोक्ड टेस्ट</h1>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <div class="timer" id="timer">समय: 00:00</div>
+            <div class="score" id="current-score">स्कोर: 0/40</div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div id="quiz"></div>
+        <div class="score-container">
+            <div class="score" id="score"></div>
+            <button class="results-btn" id="results-btn">नतिजा हेर्नुहोस्</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // Easy Questions (1-24)
+            { q: "नेपालमा पर्यटन मन्त्रालय कुन वर्ष स्थापना भएको हो?", options: ["२०३४", "२०४५", "२०५७", "२०६५"], answer: "२०३४", explanation: "पर्यटन मन्त्रालय २०३४ मा स्थापना भएको हो।" },
+            { q: "हवाई यातायात नीति कुन वर्ष लागू भएको हो?", options: ["२०६३", "२०५३", "२०७३", "२०४३"], answer: "२०६३", explanation: "हवाई नीति २०६३ मा लागू भएको हो।" },
+            { q: "नेपालको पहिलो अन्तर्राष्ट्रिय विमानस्थल कहाँ छ?", options: ["त्रिभुवन विमानस्थल, काठमाडौं", "गौतमबुद्ध विमानस्थल, भैरहवा", "पोखरा विमानस्थल", "जनकपुर विमानस्थल"], answer: "त्रिभुवन विमानस्थल, काठमाडौं", explanation: "यो पहिलो अन्तर्राष्ट्रिय विमानस्थल हो।" },
+            { q: "पर्यटन क्षेत्रले कति प्रतिशतमा विदेशी मुद्रा आर्जन गर्छ?", options: ["५-७%", "१०-१२%", "१५-२०%", "२५-३०%"], answer: "१५-२०%", explanation: "पर्यटनले १५-२०% विदेशी मुद्रा आर्जन गर्छ।" },
+            { q: "नेपालमा कति वटा हवाई सेवा प्रदायक छन्?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै हवाई सेवा प्रदायक छन्।" },
+            { q: "पहिलो आन्तरिक उडान कहिले सुरु भएको हो?", options: ["१९५३", "१९६०", "१९७०", "१९८०"], answer: "१९५३", explanation: "१९५३ मा सुरु भएको हो।" },
+            { q: "नेपालको दोस्रो अन्तर्राष्ट्रिय विमानस्थल कहाँ छ?", options: ["गौतमबुद्ध विमानस्थल, भैरहवा", "पोखरा विमानस्थल", "भैरहवा विमानस्थल", "जनकपुर विमानस्थल"], answer: "गौतमबुद्ध विमानस्थल, भैरहवा", explanation: "यो दोस्रो अन्तर्राष्ट्रिय विमानस्थल हो।" },
+            { q: "पर्यटन रणनीति कुन वर्ष सुरु भएको हो?", options: ["२०१६", "२०१५", "२०१७", "२०१८"], answer: "२०१६", explanation: "रणनीति २०१६ मा सुरु भएको हो।" },
+            { q: "हवाई यातायातले कति जनालाई रोजगारी दिएको छ?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरैलाई रोजगारी दिएको छ।" },
+            { q: "नेपालमा कति वटा हेलिप्याड छन्?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै हेलिप्याड छन्।" },
+            { q: "पर्यटन क्षेत्रको वार्षिक वृद्धि दर कति हो?", options: ["४-५%", "६-७%", "८-१०%", "१२-१५%"], answer: "४-५%", explanation: "वार्षिक वृद्धि दर ४-५% छ।" },
+            { q: "हवाई नीति कसले बनाएको हो?", options: ["सरकार", "ICAO", "CAAN", "यात्रु"], answer: "सरकार", explanation: "सरकारले बनाएको हो।" },
+            { q: "नेपालमा पहिलो पर्यटन नीति कुन वर्ष बनेको हो?", options: ["२०३२", "२०४०", "२०५०", "२०६०"], answer: "२०३२", explanation: "पहिलो नीति २०३२ मा बनेको हो।" },
+            { q: "कति वटा हवाई मार्ग नेपालमा छन्?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै हवाई मार्ग छन्।" },
+            { q: "पर्यटन क्षेत्रले कति वटा गन्तव्य कभर गर्छ?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै गन्तव्य कभर गर्छ।" },
+            { q: "हवाई यातायात नीति कति वर्षको लागि हो?", options: ["१० वर्ष", "५ वर्ष", "३ वर्ष", "१ वर्ष"], answer: "१० वर्ष", explanation: "१० वर्षको लागि हो।" },
+            { q: "नेपालमा कति वटा पर्यटक आगन्तुक छन्?", options: ["लाखौं", "हजार", "एक", "शून्य"], answer: "लाखौं", explanation: "लाखौं पर्यटक आउँछन्।" },
+            { q: "हवाई यातायातको विकास कसले गरेको हो?", options: ["CAAN", "नेपाल एयरलाइन्स", "बुद्ध एयर", "यति एयरलाइन्स"], answer: "CAAN", explanation: "CAAN ले गरेको हो।" },
+            { q: "पर्यटन रणनीति कति वर्षको लागि हो?", options: ["१० वर्ष", "५ वर्ष", "३ वर्ष", "१ वर्ष"], answer: "१० वर्ष", explanation: "१० वर्षको रणनीति हो।" },
+            { q: "नेपालमा कति वटा आन्तरिक विमानस्थल छन्?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै आन्तरिक विमानस्थल छन्।" },
+            { q: "हवाई यातायातले कति टन सामान ओसार्छ?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै टन सामान ओसार्छ।" },
+            { q: "पर्यटन क्षेत्रको योगदान कति हो?", options: ["GDP मा महत्त्वपूर्ण", "कम", "शून्य", "नगण्य"], answer: "GDP मा महत्त्वपूर्ण", explanation: "यो GDP मा महत्त्वपूर्ण छ।" },
+            { q: "हवाई यातायात नीति कति पटक संशोधन भएको हो?", options: ["एक पटक", "दुई पटक", "तीन पटक", "शून्य"], answer: "एक पटक", explanation: "एक पटक संशोधन भएको हो।" },
+            { q: "नेपालमा पर्यटनको सुरुवात कुन सहरबाट भएको हो?", options: ["काठमाडौं", "पोखरा", "भैरहवा", "विराटनगर"], answer: "काठमाडौं", explanation: "काठमाडौंबाट सुरु भएको हो।" },
+
+            // Medium Questions (25-34)
+            { q: "नेपालमा कति वटा अन्तर्राष्ट्रिय विमानस्थल छन्?", options: ["२", "३", "४", "५"], answer: "२", explanation: "हाल २ वटा छन्।" },
+            { q: "हवाई यातायात नीति कति वटा लक्ष्य राख्छ?", options: ["४", "३", "५", "६"], answer: "४", explanation: "४ वटा लक्ष्य राख्छ।" },
+            { q: "नेपालमा कति वटा हवाई सेवा सम्झौता छन्?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै सम्झौता छन्।" },
+            { q: "पर्यटन रणनीति कति वटा क्षेत्र कभर गर्छ?", options: ["५", "४", "६", "३"], answer: "५", explanation: "५ क्षेत्र कभर गर्छ।" },
+            { q: "हवाई यातायातको वृद्धि दर कति हो?", options: ["५-६%", "७-८%", "९-१०%", "११-१२%"], answer: "५-६%", explanation: "वृद्धि दर ५-६% छ।" },
+            { q: "नेपालमा कति वटा पर्यटन बोर्ड छन्?", options: ["एक", "दुई", "तीन", "चार"], answer: "एक", explanation: "एक पर्यटन बोर्ड छ।" },
+            { q: "हवाई यातायात नीति कति वटा विमानस्थल विकास गर्छ?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै विमानस्थल विकास गर्छ।" },
+            { q: "पर्यटन क्षेत्रको रोजगारी कति छ?", options: ["लाखौं", "हजार", "एक", "शून्य"], answer: "लाखौं", explanation: "लाखौं रोजगारी छ।" },
+            { q: "हवाई यातायात नीति कति वर्षमा पुनरावलोकन हुन्छ?", options: ["५ वर्ष", "१० वर्ष", "३ वर्ष", "१ वर्ष"], answer: "५ वर्ष", explanation: "५ वर्षमा पुनरावलोकन हुन्छ।" },
+            { q: "नेपालमा कति वटा हवाई उडान मार्ग छन्?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै उडान मार्ग छन्।" },
+
+            // Hard Questions (35-40)
+            { q: "हवाई नीति, २०६३ ले कति वटा लक्ष्य निर्धारण गरेको छ?", options: ["३", "४", "५", "६"], answer: "४", explanation: "४ वटा लक्ष्य निर्धारण गरेको छ।" },
+            { q: "नेपालमा हवाई यातायातको सुरक्षित उडान कति प्रतिशत छ?", options: ["९५%", "८५%", "७५%", "६५%"], answer: "९५%", explanation: "९५% सुरक्षित उडान छ।" },
+            { q: "पर्यटन रणनीति कति वटा प्राथमिकता राख्छ?", options: ["६", "५", "७", "४"], answer: "६", explanation: "६ प्राथमिकता राख्छ।" },
+            { q: "हवाई यातायात नीति कति वटा अन्तर्राष्ट्रिय सहायता लिएको छ?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै सहायता लिएको छ।" },
+            { q: "नेपालमा पर्यटनको वार्षिक आम्दानी कति हो?", options: ["बिलियन डलर", "मिलियन डलर", "हजार डलर", "शून्य"], answer: "बिलियन डलर", explanation: "बिलियन डलरको आम्दानी छ।" },
+            { q: "हवाई यातायात नीति कति वटा विमान विस्तार गर्छ?", options: ["धेरै", "केही", "एक", "शून्य"], answer: "धेरै", explanation: "धेरै विमान विस्तार गर्छ।" }
+        ];
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        const quizContainer = document.getElementById('quiz');
+        const scoreContainer = document.getElementById('score');
+        const currentScore = document.getElementById('current-score');
+        const progressBar = document.getElementById('progress');
+        const timerDisplay = document.getElementById('timer');
+        const resultsBtn = document.getElementById('results-btn');
+        let score = 0;
+        let answeredQuestions = 0;
+        let timeElapsed = 0;
+        let timerInterval;
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeElapsed++;
+                const minutes = Math.floor(timeElapsed / 60).toString().padStart(2, '0');
+                const seconds = (timeElapsed % 60).toString().padStart(2, '0');
+                timerDisplay.textContent = `समय: ${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function updateProgress() {
+            const progressPercentage = (answeredQuestions / questions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+        }
+
+        function showResults() {
+            quizContainer.style.display = 'none';
+            scoreContainer.textContent = `फाइनल स्कोर: ${score} बाट ${questions.length} (${((score / questions.length) * 100).toFixed(2)}%)`;
+            resultsBtn.style.display = 'block';
+            resultsBtn.onclick = () => {
+                quizContainer.style.display = 'block';
+                scoreContainer.textContent = '';
+                resultsBtn.style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                location.reload(); // Reset the quiz
+            };
+            clearInterval(timerInterval);
+        }
+
+        questions.forEach((q, i) => {
+            const div = document.createElement('div');
+            div.classList.add('question');
+            div.innerHTML = `<p>${i + 1}. ${q.q}</p>`;
+
+            const optsDiv = document.createElement('div');
+            optsDiv.classList.add('options');
+
+            const explanationDiv = document.createElement('div');
+            explanationDiv.classList.add('explanation');
+            explanationDiv.textContent = q.explanation;
+
+            const shuffled = shuffle(q.options.map(opt => ({ text: opt, isCorrect: opt === q.answer })));
+
+            shuffled.forEach(({ text, isCorrect }) => {
+                const btn = document.createElement('button');
+                btn.textContent = text;
+                btn.onclick = () => {
+                    if (btn.classList.contains('correct') || btn.classList.contains('wrong')) return;
+                    answeredQuestions++;
+                    updateProgress();
+                    currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+
+                    if (isCorrect) {
+                        btn.classList.add('correct');
+                        score++;
+                        currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+                    } else {
+                        btn.classList.add('wrong');
+                        optsDiv.querySelectorAll('button').forEach(b => {
+                            if (b.textContent === q.answer) {
+                                b.classList.add('correct');
+                            }
+                        });
+                    }
+
+                    optsDiv.querySelectorAll('button').forEach(b => b.disabled = true);
+                    explanationDiv.style.display = 'block';
+
+                    if (answeredQuestions === questions.length) {
+                        showResults();
+                    }
+                };
+                optsDiv.appendChild(btn);
+            });
+
+            div.appendChild(optsDiv);
+            div.appendChild(explanationDiv);
+            quizContainer.appendChild(div);
+        });
+
+        startTimer();
+    </script>
+</body>
+</html>
