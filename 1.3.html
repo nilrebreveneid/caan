@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>कार्यालय कार्यविधि मोक्ड टेस्ट</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #c3dafe);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3a8a;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .progress-bar {
+            background: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .progress {
+            background: #3b82f6;
+            height: 100%;
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .question {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .question:hover {
+            transform: translateY(-2px);
+        }
+
+        .question p {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+        }
+
+        .options button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            color: #374151;
+        }
+
+        .options button:hover:not(:disabled) {
+            background: #f3f4f6;
+            border-color: #3b82f6;
+            transform: translateX(4px);
+        }
+
+        .options button.correct {
+            background: #bbf7d0;
+            border-color: #22c55e;
+            color: #166534;
+        }
+
+        .options button.wrong {
+            background: #fecaca;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .options button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .explanation {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #eff6ff;
+            border-radius: 8px;
+            color: #1e3a8a;
+            font-size: 0.95rem;
+        }
+
+        .score-container {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .results-btn {
+            display: none;
+            margin: 1rem auto;
+            padding: 0.75rem 2rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .results-btn:hover {
+            background: #2563eb;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+
+            .quiz-container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .question p {
+                font-size: 1rem;
+            }
+
+            .options button {
+                font-size: 0.9rem;
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>कार्यालय कार्यविधि मोक्ड टेस्ट</h1>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <div class="timer" id="timer">समय: 00:00</div>
+            <div class="score" id="current-score">स्कोर: 0/40</div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div id="quiz"></div>
+        <div class="score-container">
+            <div class="score" id="score"></div>
+            <button class="results-btn" id="results-btn">नतिजा हेर्नुहोस्</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // Easy Questions (1-24)
+            { q: "दर्ता भनेको के हो?", options: ["प्राप्त चिट्ठी पत्रको अभिलेख राख्ने कार्य", "पत्र पठाउने कार्य", "फाईल व्यवस्थापन", "जनसम्पर्क"], answer: "प्राप्त चिट्ठी पत्रको अभिलेख राख्ने कार्य", explanation: "दर्ता प्राप्त कागजातको अभिलेख हो।" },
+            { q: "चलानीको मुख्य उद्देश्य के हो?", options: ["पत्र पठाउने अभिलेख राख्ने", "दर्ता गर्ने", "टिप्पणी लेख्ने", "फाईल बनाउने"], answer: "पत्र पठाउने अभिलेख राख्ने", explanation: "चलानी पठाइएको कागजातको रेकर्ड हो।" },
+            { q: "फाईलिङ्कको उद्देश्य के हो?", options: ["कागजात सुरक्षित राख्ने", "पत्र पठाउने", "जनसम्पर्क गर्ने", "दर्ता गर्ने"], answer: "कागजात सुरक्षित राख्ने", explanation: "फाईलिङ्क कागजात सुरक्षित राख्नको लागि हो।" },
+            { q: "पत्रब्यवहारको परिभाषा के हो?", options: ["लिखित सम्पर्क राख्ने प्रक्रिया", "मौखिक संवाद", "फोन सम्पर्क", "इमेल मात्र"], answer: "लिखित सम्पर्क राख्ने प्रक्रिया", explanation: "पत्रब्यवहार लिखित सम्पर्क हो।" },
+            { q: "टिप्पणी भनेको के हो?", options: ["कागजातमा लेखिएको टिप्पणी", "पत्र पठाउने", "दर्ता गर्ने", "जनसम्पर्क"], answer: "कागजातमा लेखिएको टिप्पणी", explanation: "टिप्पणी कागजातमा लेखिएको हुन्छ।" },
+            { q: "जनसम्पर्कको उद्देश्य के हो?", options: ["जनता र कार्यालयबीच समन्वय", "केवल दर्ता", "केवल चलानी", "फाईल बनाउने"], answer: "जनता र कार्यालयबीच समन्वय", explanation: "जनसम्पर्क समन्वयको लागि हो।" },
+            { q: "दर्ता किताब कहाँ राखिन्छ?", options: ["कार्यालयमा", "घरमा", "बजारमा", "स्कूलमा"], answer: "कार्यालयमा", explanation: "दर्ता किताब कार्यालयमा राखिन्छ।" },
+            { q: "चलानी दर्ता कसले गर्छ?", options: ["कार्यालय सहायक", "यात्रु", "प्रहरी", "विमान चालक"], answer: "कार्यालय सहायक", explanation: "सहायकले गर्छ।" },
+            { q: "फाईलिङ्क कुन प्रकारको हुन्छ?", options: ["हस्तलिखित र डिजिटल", "केवल मौखिक", "केवल फोन", "कुनै पनि नहुने"], answer: "हस्तलिखित र डिजिटल", explanation: "यो दुवै प्रकारको हुन्छ।" },
+            { q: "पत्रब्यवहार कति प्रकारको हुन्छ?", options: ["आन्तरिक र बाह्य", "केवल आन्तरिक", "केवल बाह्य", "कुनै पनि नहुने"], answer: "आन्तरिक र बाह्य", explanation: "दुई प्रकारको हुन्छ।" },
+            { q: "टिप्पणी कसले लेख्छ?", options: ["अधिकारी", "यात्रु", "प्रहरी", "विमान चालक"], answer: "अधिकारी", explanation: "अधिकारीले लेख्छ।" },
+            { q: "जनसम्पर्क कसको जिम्मा हो?", options: ["सूचना अधिकारी", "यात्रु", "प्रहरी", "विमान चालक"], answer: "सूचना अधिकारी", explanation: "सूचना अधिकारीको जिम्मा हो।" },
+            { q: "दर्ता नम्बर कति अंकको हुन्छ?", options: ["४", "६", "८", "१०"], answer: "६", explanation: "६ अंकको हुन्छ।" },
+            { q: "चलानी किताब कहाँ राखिन्छ?", options: ["कार्यालयमा", "घरमा", "बजारमा", "स्कूलमा"], answer: "कार्यालयमा", explanation: "चलानी किताब कार्यालयमा राखिन्छ।" },
+            { q: "फाईलिङ्क कति समयसम्म राखिन्छ?", options: ["आवश्यकता अनुसार", "१ वर्ष", "६ महिना", "१ महिना"], answer: "आवश्यकता अनुसार", explanation: "आवश्यकता अनुसार राखिन्छ।" },
+            { q: "पत्रब्यवहार कति चरणमा हुन्छ?", options: ["दुई", "तीन", "चार", "पाँच"], answer: "दुई", explanation: "दुई चरणमा हुन्छ।" },
+            { q: "टिप्पणी कति शब्दको हुन्छ?", options: ["संक्षिप्त", "लामो", "मध्यम", "कुनै पनि नहुने"], answer: "संक्षिप्त", explanation: "संक्षिप्त हुन्छ।" },
+            { q: "जनसम्पर्क कति प्रकारको हुन्छ?", options: ["लिखित र मौखिक", "केवल लिखित", "केवल मौखिक", "कुनै पनि नहुने"], answer: "लिखित र मौखिक", explanation: "दुई प्रकारको हुन्छ।" },
+            { q: "दर्ता किताब कति पाना हुन्छ?", options: ["१००", "५०", "२००", "३००"], answer: "१००", explanation: "१०० पाना हुन्छ।" },
+            { q: "चलानी दर्ता कति समयमा हुन्छ?", options: ["तुरुन्त", "१ दिन पछि", "१ हप्ता पछि", "१ महिना पछि"], answer: "तुरुन्त", explanation: "तुरुन्त हुन्छ।" },
+            { q: "फाईलिङ्क कति प्रकारको हुन्छ?", options: ["वर्गिकरण र क्रमिक", "केवल वर्गिकरण", "केवल क्रमिक", "कुनै पनि नहुने"], answer: "वर्गिकरण र क्रमिक", explanation: "दुई प्रकारको हुन्छ।" },
+            { q: "पत्रब्यवहार कति दिनमा जवाफ दिइन्छ?", options: ["७ दिन", "१५ दिन", "३० दिन", "६० दिन"], answer: "७ दिन", explanation: "७ दिनमा जवाफ दिइन्छ।" },
+            { q: "टिप्पणी कति पटक संशोधन हुन्छ?", options: ["आवश्यकता अनुसार", "एक पटक", "दुई पटक", "तीन पटक"], answer: "आवश्यकता अनुसार", explanation: "आवश्यकता अनुसार संशोधन हुन्छ।" },
+            { q: "जनसम्पर्क कति पटक हुन्छ?", options: ["आवश्यकता अनुसार", "दैनिक", "हप्तामा", "महिनामा"], answer: "आवश्यकता अनुसार", explanation: "आवश्यकता अनुसार हुन्छ।" },
+
+            // Medium Questions (25-34)
+            { q: "दर्ता किताबमा कुन जानकारी राखिन्छ?", options: ["पठाउनेको नाम र मिति", "केवल मिति", "केवल नाम", "जनसम्पर्क विवरण"], answer: "पठाउनेको नाम र मिति", explanation: "नाम र मिति राखिन्छ।" },
+            { q: "चलानी दर्ता कति नम्बरको हुन्छ?", options: ["आरोही", "अवरोही", "अनियमित", "कुनै पनि नहुने"], answer: "आरोही", explanation: "आरोही नम्बर हुन्छ।" },
+            { q: "फाईलिङ्क कति वर्षसम्म राखिन्छ?", options: ["५ वर्ष", "१० वर्ष", "१५ वर्ष", "२० वर्ष"], answer: "५ वर्ष", explanation: "५ वर्षसम्म राखिन्छ।" },
+            { q: "पत्रब्यवहार कति प्रकारको फारम प्रयोग हुन्छ?", options: ["दुई", "तीन", "चार", "पाँच"], answer: "दुई", explanation: "दुई प्रकारको फारम प्रयोग हुन्छ।" },
+            { q: "टिप्पणी कति पृष्ठको हुन्छ?", options: ["एक", "दुई", "तीन", "चार"], answer: "एक", explanation: "एक पृष्ठको हुन्छ।" },
+            { q: "जनसम्पर्क कति व्यक्तिबीच हुन्छ?", options: ["जनता र कार्यालय", "केवल कार्यालय", "केवल जनता", "कुनै पनि नहुने"], answer: "जनता र कार्यालय", explanation: "दुवैबीच हुन्छ।" },
+            { q: "दर्ता किताब कति पटक अद्यावधिक हुन्छ?", options: ["दैनिक", "हप्तामा", "महिनामा", "वार्षिक"], answer: "दैनिक", explanation: "दैनिक अद्यावधिक हुन्छ।" },
+            { q: "चलानी किताब कति पाना हुन्छ?", options: ["१००", "५०", "२००", "३००"], answer: "१००", explanation: "१०० पाना हुन्छ।" },
+            { q: "फाईलिङ्क कति वटा क्याटेगोरीमा हुन्छ?", options: ["दुई", "तीन", "चार", "पाँच"], answer: "दुई", explanation: "दुई क्याटेगोरीमा हुन्छ।" },
+            { q: "पत्रब्यवहार कति दिनमा रेकर्ड राखिन्छ?", options: ["३० दिन", "६० दिन", "९० दिन", "१ वर्ष"], answer: "३० दिन", explanation: "३० दिन रेकर्ड राखिन्छ।" },
+
+            // Hard Questions (35-40)
+            { q: "टिप्पणी लेखनको लागि कस्तो योग्यता आवश्यक हुन्छ?", options: ["लेखन र विश्लेषण क्षमता", "केवल गति", "केवल अनुभव", "जनसम्पर्क"], answer: "लेखन र विश्लेषण क्षमता", explanation: "यो योग्यता आवश्यक छ।" },
+            { q: "जनसम्पर्कको लागि कति बजेट छुट्याइन्छ?", options: ["आवश्यकता अनुसार", "निश्चित", "शून्य", "कम"], answer: "आवश्यकता अनुसार", explanation: "आवश्यकता अनुसार छुट्याइन्छ।" },
+            { q: "दर्ता प्रक्रिया कति चरणमा हुन्छ?", options: ["तीन", "दुई", "चार", "पाँच"], answer: "तीन", explanation: "तीन चरणमा हुन्छ।" },
+            { q: "चलानी दर्ता कति समयसम्म रेकर्ड राखिन्छ?", options: ["५ वर्ष", "१० वर्ष", "१५ वर्ष", "२० वर्ष"], answer: "५ वर्ष", explanation: "५ वर्ष रेकर्ड राखिन्छ।" },
+            { q: "फाईलिङ्क कति पटक जाँच हुन्छ?", options: ["मासिक", "हप्तामा", "दैनिक", "वार्षिक"], answer: "मासिक", explanation: "मासिक जाँच हुन्छ।" },
+            { q: "पत्रब्यवहारको लागि कति कर्मचारी आवश्यक हुन्छ?", options: ["दुई वा बढी", "एक", "शून्य", "तीन"], answer: "दुई वा बढी", explanation: "दुई वा बढी आवश्यक हुन्छ।" }
+        ];
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        const quizContainer = document.getElementById('quiz');
+        const scoreContainer = document.getElementById('score');
+        const currentScore = document.getElementById('current-score');
+        const progressBar = document.getElementById('progress');
+        const timerDisplay = document.getElementById('timer');
+        const resultsBtn = document.getElementById('results-btn');
+        let score = 0;
+        let answeredQuestions = 0;
+        let timeElapsed = 0;
+        let timerInterval;
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeElapsed++;
+                const minutes = Math.floor(timeElapsed / 60).toString().padStart(2, '0');
+                const seconds = (timeElapsed % 60).toString().padStart(2, '0');
+                timerDisplay.textContent = `समय: ${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function updateProgress() {
+            const progressPercentage = (answeredQuestions / questions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+        }
+
+        function showResults() {
+            quizContainer.style.display = 'none';
+            scoreContainer.textContent = `फाइनल स्कोर: ${score} बाट ${questions.length} (${((score / questions.length) * 100).toFixed(2)}%)`;
+            resultsBtn.style.display = 'block';
+            resultsBtn.onclick = () => {
+                quizContainer.style.display = 'block';
+                scoreContainer.textContent = '';
+                resultsBtn.style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                location.reload(); // Reset the quiz
+            };
+            clearInterval(timerInterval);
+        }
+
+        questions.forEach((q, i) => {
+            const div = document.createElement('div');
+            div.classList.add('question');
+            div.innerHTML = `<p>${i + 1}. ${q.q}</p>`;
+
+            const optsDiv = document.createElement('div');
+            optsDiv.classList.add('options');
+
+            const explanationDiv = document.createElement('div');
+            explanationDiv.classList.add('explanation');
+            explanationDiv.textContent = q.explanation;
+
+            const shuffled = shuffle(q.options.map(opt => ({ text: opt, isCorrect: opt === q.answer })));
+
+            shuffled.forEach(({ text, isCorrect }) => {
+                const btn = document.createElement('button');
+                btn.textContent = text;
+                btn.onclick = () => {
+                    if (btn.classList.contains('correct') || btn.classList.contains('wrong')) return;
+                    answeredQuestions++;
+                    updateProgress();
+                    currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+
+                    if (isCorrect) {
+                        btn.classList.add('correct');
+                        score++;
+                        currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+                    } else {
+                        btn.classList.add('wrong');
+                        optsDiv.querySelectorAll('button').forEach(b => {
+                            if (b.textContent === q.answer) {
+                                b.classList.add('correct');
+                            }
+                        });
+                    }
+
+                    optsDiv.querySelectorAll('button').forEach(b => b.disabled = true);
+                    explanationDiv.style.display = 'block';
+
+                    if (answeredQuestions === questions.length) {
+                        showResults();
+                    }
+                };
+                optsDiv.appendChild(btn);
+            });
+
+            div.appendChild(optsDiv);
+            div.appendChild(explanationDiv);
+            quizContainer.appendChild(div);
+        });
+
+        startTimer();
+    </script>
+</body>
+</html>
