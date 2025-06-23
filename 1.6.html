@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CAAN र ICAO मोक्ड टेस्ट</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #c3dafe);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3a8a;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .progress-bar {
+            background: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .progress {
+            background: #3b82f6;
+            height: 100%;
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .question {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .question:hover {
+            transform: translateY(-2px);
+        }
+
+        .question p {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+        }
+
+        .options button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            color: #374151;
+        }
+
+        .options button:hover:not(:disabled) {
+            background: #f3f4f6;
+            border-color: #3b82f6;
+            transform: translateX(4px);
+        }
+
+        .options button.correct {
+            background: #bbf7d0;
+            border-color: #22c55e;
+            color: #166534;
+        }
+
+        .options button.wrong {
+            background: #fecaca;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .options button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .explanation {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #eff6ff;
+            border-radius: 8px;
+            color: #1e3a8a;
+            font-size: 0.95rem;
+        }
+
+        .score-container {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .results-btn {
+            display: none;
+            margin: 1rem auto;
+            padding: 0.75rem 2rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .results-btn:hover {
+            background: #2563eb;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+
+            .quiz-container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .question p {
+                font-size: 1rem;
+            }
+
+            .options button {
+                font-size: 0.9rem;
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>1.6 नेपाल नागरिक उड्डयन प्राधिकरण र अन्तर्राष्ट्रिय नागरिक उड्डयन संगठन (ICAO)</h1>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <div class="timer" id="timer">समय: 00:00</div>
+            <div class="score" id="current-score">स्कोर: 0/40</div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div id="quiz"></div>
+        <div class="score-container">
+            <div class="score" id="score"></div>
+            <button class="results-btn" id="results-btn">नतिजा हेर्नुहोस्</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // Easy Questions (1-24)
+            { q: "नेपाल नागरिक उड्डयन प्राधिकरण (CAAN) को स्थापना कहिले भएको हो?", options: ["१९९७", "१९९८", "१९९९", "२०००"], answer: "१९९७", explanation: "CAAN १९९७ मा स्थापना भएको हो।" },
+            { q: "ICAO को पूर्ण रूप के हो?", options: ["अन्तर्राष्ट्रिय नागरिक उड्डयन संगठन", "अन्तर्राष्ट्रिय कार्गो उड्डयन संगठन", "अन्तर्राष्ट्रिय विमानस्थल संगठन", "अन्तर्राष्ट्रिय हवाई ट्राफिक संगठन"], answer: "अन्तर्राष्ट्रिय नागरिक उड्डयन संगठन", explanation: "यो ICAO को पूर्ण रूप हो।" },
+            { q: "ICAO को मुख्यालय कहाँ छ?", options: ["Montreal, Canada", "Geneva, Switzerland", "London, UK", "New York, USA"], answer: "Montreal, Canada", explanation: "ICAO को मुख्यालय यहाँ छ।" },
+            { q: "CAAN को मुख्य उद्देश्य के हो?", options: ["हवाई सेवा र सुरक्षा सुनिश्चितता", "केवल विमान मर्मत", "यात्रु मनोरञ्जन", "हवाई ट्राफिक नियन्त्रण मात्र"], answer: "हवाई सेवा र सुरक्षा सुनिश्चितता", explanation: "यो CAAN को मुख्य उद्देश्य हो।" },
+            { q: "ICAO ले कति वटा अनुबन्ध जारी गरेको छ?", options: ["१९", "१५", "२०", "२५"], answer: "१९", explanation: "ICAO ले १९ वटा अनुबन्ध जारी गरेको छ।" },
+            { q: "नेपालले ICAO मा कुन वर्ष सदस्यता लिएको हो?", options: ["१९५३", "१९६०", "१९७०", "१९८०"], answer: "१९५३", explanation: "नेपालले १९५३ मा सदस्यता लिएको हो।" },
+            { q: "CAAN ले कुन नियमावली लागू गर्छ?", options: ["विमानस्थल सेवा शुल्क नियमावली", "केवल हवाई ट्राफिक नियम", "यात्रु नियमावली", "विमान मर्मत नियमावली"], answer: "विमानस्थल सेवा शुल्क नियमावली", explanation: "यो नियमावली CAAN ले लागू गर्छ।" },
+            { q: "ICAO को Annex 17 मा के उल्लेख छ?", options: ["हवाई सुरक्षा", "विमानस्थल सुविधा", "हवाई ट्राफिक नियन्त्रण", "यात्रु सेवा"], answer: "हवाई सुरक्षा", explanation: "Annex 17 मा हवाई सुरक्षा उल्लेख छ।" },
+            { q: "CAAN को महानिर्देशक को नियुक्ति कसले गर्छ?", options: ["सरकार", "ICAO", "विमान कम्पनी", "प्रहरी"], answer: "सरकार", explanation: "सरकारले नियुक्ति गर्छ।" },
+            { q: "ICAO को उद्देश्य के हो?", options: ["विश्वव्यापी हवाई सुरक्षा र व्यवस्थापन", "केवल आर्थिक लाभ", "यात्रु प्रशिक्षण", "विमान मर्मत"], answer: "विश्वव्यापी हवाई सुरक्षा र व्यवस्थापन", explanation: "यो ICAO को उद्देश्य हो।" },
+            { q: "CAAN को स्थापना कुन ऐनद्वारा भएको हो?", options: ["नागरिक उड्डयन ऐन, २०५३", "हवाई सेवा ऐन, २०५३", "विमानस्थल ऐन, २०५३", "प्रशासनिक ऐन, २०५३"], answer: "नागरिक उड्डयन ऐन, २०५३", explanation: "यो ऐनद्वारा स्थापना भएको हो।" },
+            { q: "ICAO को स्थापना कहिले भएको हो?", options: ["१९४४", "१९५०", "१९६०", "१९७०"], answer: "१९४४", explanation: "ICAO १९४४ मा स्थापना भएको हो।" },
+            { q: "CAAN ले कति प्रकारका सेवा शुल्क लिन्छ?", options: ["४", "३", "५", "६"], answer: "४", explanation: "४ प्रकारका शुल्क लिन्छ।" },
+            { q: "ICAO को सदस्य राष्ट्रको संख्या कति हो?", options: ["१९३", "१५०", "१७५", "२००"], answer: "१९३", explanation: "हाल १९३ सदस्य छन्।" },
+            { q: "CAAN को मुख्यालय कहाँ छ?", options: ["काठमाडौं", "पोखरा", "भैरहवा", "विराटनगर"], answer: "काठमाडौं", explanation: "काठमाडौंमा छ।" },
+            { q: "ICAO को Chicago Convention कुन वर्षमा भएको हो?", options: ["१९४४", "१९५०", "१९६०", "१९७०"], answer: "१९४४", explanation: "यो १९४४ मा भएको हो।" },
+            { q: "CAAN ले कुन सुरक्षा नियमावली लागू गर्छ?", options: ["नागरिक उड्डयन सुरक्षा नियमावली, २०७३", "हवाई ट्राफिक नियमावली", "यात्रु सुरक्षा नियमावली", "विमान मर्मत नियमावली"], answer: "नागरिक उड्डयन सुरक्षा नियमावली, २०७३", explanation: "यो नियमावली लागू हुन्छ।" },
+            { q: "ICAO को Annex 9 मा के उल्लेख छ?", options: ["यात्रु सुविधा", "हवाई सुरक्षा", "विमान मर्मत", "हवाई ट्राफिक"], answer: "यात्रु सुविधा", explanation: "Annex 9 मा यो उल्लेख छ।" },
+            { q: "CAAN को महानिर्देशकको कार्यकाल कति हो?", options: ["४ वर्ष", "३ वर्ष", "५ वर्ष", "६ वर्ष"], answer: "४ वर्ष", explanation: "४ वर्षको कार्यकाल हो।" },
+            { q: "ICAO ले कुन क्षेत्रमा काम गर्छ?", options: ["विश्वव्यापी उड्डयन", "केवल यूरोप", "केवल एसिया", "केवल अमेरिका"], answer: "विश्वव्यापी उड्डयन", explanation: "विश्वव्यापी रूपमा काम गर्छ।" },
+            { q: "CAAN ले कति वटा अन्तर्राष्ट्रिय विमानस्थल सञ्चालन गर्छ?", options: ["२", "३", "४", "५"], answer: "२", explanation: "२ वटा अन्तर्राष्ट्रिय विमानस्थल छन्।" },
+            { q: "ICAO को नियमावली कति भाषामा उपलब्ध छ?", options: ["६", "४", "८", "१०"], answer: "६", explanation: "६ भाषामा उपलब्ध छ।" },
+            { q: "CAAN को वार्षिक बजेट कसले स्वीकृत गर्छ?", options: ["सरकार", "ICAO", "विमान कम्पनी", "प्रहरी"], answer: "सरकार", explanation: "सरकारले स्वीकृत गर्छ।" },
+            { q: "ICAO को सुरक्षा मापदण्ड कस्तो हुन्छ?", options: ["अन्तर्राष्ट्रिय", "केवल राष्ट्रिय", "प्रादेशिक", "स्थानीय"], answer: "अन्तर्राष्ट्रिय", explanation: "यो अन्तर्राष्ट्रिय मापदण्ड हो।" },
+
+            // Medium Questions (25-34)
+            { q: "CAAN ले कति वटा विमानस्थल सञ्चालन गर्छ?", options: ["२० भन्दा बढी", "१५", "१०", "५"], answer: "२० भन्दा बढी", explanation: "२० भन्दा बढी विमानस्थल सञ्चालन गर्छ।" },
+            { q: "ICAO को सदस्य राष्ट्र कति छन्?", options: ["१९३", "१५०", "१७५", "२००"], answer: "१९३", explanation: "हाल १९३ सदस्य छन्।" },
+            { q: "CAAN र ICAO बीचको सम्झौता कहिले भएको हो?", options: ["१९५३", "१९६५", "१९७५", "१९८५"], answer: "१९५३", explanation: "यो सम्झौता १९५३ मा भएको हो।" },
+            { q: "Annex 9 मा के समावेश छ?", options: ["यात्रु सुविधा", "हवाई सुरक्षा", "विमान मर्मत", "हवाई ट्राफिक"], answer: "यात्रु सुविधा", explanation: "यो समावेश छ।" },
+            { q: "CAAN ले ICAO को कुन अनुबन्ध पालना गर्छ?", options: ["Chicago Convention", "Paris Convention", "London Convention", "Geneva Convention"], answer: "Chicago Convention", explanation: "यो अनुबन्ध पालना गर्छ।" },
+            { q: "ICAO को सुरक्षा जाँच मापदण्ड कस्तो हो?", options: ["कडा", "मध्यम", "कमजोर", "कुनै नहुने"], answer: "कडा", explanation: "यो कडा मापदण्ड हो।" },
+            { q: "CAAN को वार्षिक प्रतिवेदन कहाँ पेश हुन्छ?", options: ["सरकार", "ICAO", "विमान कम्पनी", "प्रहरी"], answer: "सरकार", explanation: "सरकारलाई पेश हुन्छ।" },
+            { q: "ICAO को Annex 17 मा कति सुरक्षा उपाय छन्?", options: ["१०", "१५", "२०", "२५"], answer: "१५", explanation: "१५ सुरक्षा उपाय छन्।" },
+            { q: "CAAN ले कति वटा सुरक्षा तालिम आयोजना गर्छ?", options: ["वार्षिक", "मासिक", "हप्तामा", "कुनै पनि नगर्ने"], answer: "वार्षिक", explanation: "वार्षिक तालिम हुन्छ।" },
+            { q: "ICAO र CAAN बीचको सहकार्य कस्तो छ?", options: ["सुदृढ", "कमजोर", "अस्थायी", "कुनै छैन"], answer: "सुदृढ", explanation: "यो सुदृढ सहकार्य हो।" },
+
+            // Hard Questions (35-40)
+            { q: "CAAN ले ICAO को कुन मापदण्ड पालना गर्छ?", options: ["सबै अनुबन्ध", "केवल Annex 17", "केवल Annex 9", "कुनै पनि नगर्ने"], answer: "सबै अनुबन्ध", explanation: "सबै अनुबन्ध पालना गर्छ।" },
+            { q: "ICAO को Chicago Convention मा कति अनुच्छेद छन्?", options: ["९६", "८५", "१००", "१२०"], answer: "९६", explanation: "९६ अनुच्छेद छन्।" },
+            { q: "CAAN ले ICAO को सुरक्षा अडिट कहिले भयो?", options: ["२०१७", "२०१५", "२०१९", "२०२१"], answer: "२०१७", explanation: "२०१७ मा अडिट भयो।" },
+            { q: "ICAO को Annex 17 मा कस्तो सुरक्षा प्रणाली उल्लेख छ?", options: ["एयरपोर्ट सिक्योरिटी", "केवल विमान सुरक्षा", "यात्रु जाँच", "हवाई ट्राफिक"], answer: "एयरपोर्ट सिक्योरिटी", explanation: "यो प्रणाली उल्लेख छ।" },
+            { q: "CAAN को ICAO सँगको सम्झौता कति वर्षको लागि हो?", options: ["अवधि निश्चित छैन", "५ वर्ष", "१० वर्ष", "१५ वर्ष"], answer: "अवधि निश्चित छैन", explanation: "यो अवधि निश्चित छैन।" },
+            { q: "ICAO ले CAAN लाई कति सहायता प्रदान गर्छ?", options: ["प्राविधिक र प्रशिक्षण", "केवल आर्थिक", "केवल उपकरण", "कुनै पनि नगर्ने"], answer: "प्राविधिक र प्रशिक्षण", explanation: "यो सहायता प्रदान गर्छ।" }
+        ];
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        const quizContainer = document.getElementById('quiz');
+        const scoreContainer = document.getElementById('score');
+        const currentScore = document.getElementById('current-score');
+        const progressBar = document.getElementById('progress');
+        const timerDisplay = document.getElementById('timer');
+        const resultsBtn = document.getElementById('results-btn');
+        let score = 0;
+        let answeredQuestions = 0;
+        let timeElapsed = 0;
+        let timerInterval;
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeElapsed++;
+                const minutes = Math.floor(timeElapsed / 60).toString().padStart(2, '0');
+                const seconds = (timeElapsed % 60).toString().padStart(2, '0');
+                timerDisplay.textContent = `समय: ${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function updateProgress() {
+            const progressPercentage = (answeredQuestions / questions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+        }
+
+        function showResults() {
+            quizContainer.style.display = 'none';
+            scoreContainer.textContent = `फाइनल स्कोर: ${score} बाट ${questions.length} (${((score / questions.length) * 100).toFixed(2)}%)`;
+            resultsBtn.style.display = 'block';
+            resultsBtn.onclick = () => {
+                quizContainer.style.display = 'block';
+                scoreContainer.textContent = '';
+                resultsBtn.style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                location.reload(); // Reset the quiz
+            };
+            clearInterval(timerInterval);
+        }
+
+        questions.forEach((q, i) => {
+            const div = document.createElement('div');
+            div.classList.add('question');
+            div.innerHTML = `<p>${i + 1}. ${q.q}</p>`;
+
+            const optsDiv = document.createElement('div');
+            optsDiv.classList.add('options');
+
+            const explanationDiv = document.createElement('div');
+            explanationDiv.classList.add('explanation');
+            explanationDiv.textContent = q.explanation;
+
+            const shuffled = shuffle(q.options.map(opt => ({ text: opt, isCorrect: opt === q.answer })));
+
+            shuffled.forEach(({ text, isCorrect }) => {
+                const btn = document.createElement('button');
+                btn.textContent = text;
+                btn.onclick = () => {
+                    if (btn.classList.contains('correct') || btn.classList.contains('wrong')) return;
+                    answeredQuestions++;
+                    updateProgress();
+                    currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+
+                    if (isCorrect) {
+                        btn.classList.add('correct');
+                        score++;
+                        currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+                    } else {
+                        btn.classList.add('wrong');
+                        optsDiv.querySelectorAll('button').forEach(b => {
+                            if (b.textContent === q.answer) {
+                                b.classList.add('correct');
+                            }
+                        });
+                    }
+
+                    optsDiv.querySelectorAll('button').forEach(b => b.disabled = true);
+                    explanationDiv.style.display = 'block';
+
+                    if (answeredQuestions === questions.length) {
+                        showResults();
+                    }
+                };
+                optsDiv.appendChild(btn);
+            });
+
+            div.appendChild(optsDiv);
+            div.appendChild(explanationDiv);
+            quizContainer.appendChild(div);
+        });
+
+        startTimer();
+    </script>
+</body>
+</html>
