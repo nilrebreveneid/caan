@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>नेपाल नागरिक उड्डयन प्राधिकरण आर्थिक प्रशासन सम्वन्धी नियमावली, २०५७</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #c3dafe);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3a8a;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .progress-bar {
+            background: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .progress {
+            background: #3b82f6;
+            height: 100%;
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .question {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .question:hover {
+            transform: translateY(-2px);
+        }
+
+        .question p {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+        }
+
+        .options button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            color: #374151;
+        }
+
+        .options button:hover:not(:disabled) {
+            background: #f3f4f6;
+            border-color: #3b82f6;
+            transform: translateX(4px);
+        }
+
+        .options button.correct {
+            background: #bbf7d0;
+            border-color: #22c55e;
+            color: #166534;
+        }
+
+        .options button.wrong {
+            background: #fecaca;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .options button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .explanation {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #eff6ff;
+            border-radius: 8px;
+            color: #1e3a8a;
+            font-size: 0.95rem;
+        }
+
+        .score-container {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .results-btn {
+            display: none;
+            margin: 1rem auto;
+            padding: 0.75rem 2rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .results-btn:hover {
+            background: #2563eb;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+
+            .quiz-container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .question p {
+                font-size: 1rem;
+            }
+
+            .options button {
+                font-size: 0.9rem;
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>1.12) नेपाल नागरिक उड्डयन प्राधिकरण आर्थिक प्रशासन सम्वन्धी नियमावली, २०५७</h1>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <div class="timer" id="timer">समय: 00:00</div>
+            <div class="score" id="current-score">स्कोर: 0/45</div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div id="quiz"></div>
+        <div class="score-container">
+            <div class="score" id="score"></div>
+            <button class="results-btn" id="results-btn">नतिजा हेर्नुहोस्</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // Easy Questions (1-27)
+            { q: "नियमावलीको नाम के हो?", options: ["नेपाल नागरिक उड्डयन प्राधिकरण नियमावली, २०४७", "नेपाल नागरिक उड्डयन प्राधिकरण आर्थिक प्रशासन सम्बन्धी नियमावली, २०४७", "नेपाल हवाई सेवा नियमावली, २०४७", "नेपाल आर्थिक प्रशासन नियमावली, २०४७"], answer: "नेपाल नागरिक उड्डयन प्राधिकरण आर्थिक प्रशासन सम्बन्धी नियमावली, २०४७", explanation: "नियमावलीको पूर्ण नाम यही हो।" },
+            { q: "नियमावली कुन ऐनको दफा ३४ बमोजिम बनाइएको हो?", options: ["नेपाल नागरिक उड्डयन प्राधिकरण ऐन, २०४३", "नेपाल हवाई सेवा ऐन, २०४३", "नेपाल प्रशासन ऐन, २०४३", "नेपाल वित्तीय ऐन, २०४३"], answer: "नेपाल नागरिक उड्डयन प्राधिकरण ऐन, २०४३", explanation: "दफा ३४ बमोजिम यो नियमावली बनाइएको हो।" },
+            { q: "नियमावली कति मितिदेखि लागू हुन्छ?", options: ["श्री ४ को सरकारको स्वीकृत मितिदेखि", "२०४७ सालको श्रावण १ देखि", "२०४३ सालको चैत्र १ देखि", "२०५० सालको माघ १ देखि"], answer: "श्री ४ को सरकारको स्वीकृत मितिदेखि", explanation: "स्वीकृत मितिबाट लागू हुने व्यवस्था छ।" },
+            { q: "'ऐन' शब्दले केलाई जनाउँछ?", options: ["नेपाल नागरिक उड्डयन प्राधिकरण ऐन, २०४३", "नेपाल हवाई सेवा ऐन, २०४३", "नेपाल प्रशासन ऐन, २०४३", "नेपाल वित्तीय ऐन, २०४३"], answer: "नेपाल नागरिक उड्डयन प्राधिकरण ऐन, २०४३", explanation: "ऐनको परिभाषा यही हो।" },
+            { q: "'प्रधान कार्यालय' को परिभाषा के हो?", options: ["ऐनको दफा ३ को उपदफा (३) बमोजिम स्थापना भएको कार्यालय", "महानिर्देशकको कार्यालय", "काठमाडौंको मुख्य कार्यालय", "नागरिक उड्डयन कार्यालय"], answer: "ऐनको दफा ३ को उपदफा (३) बमोजिम स्थापना भएको कार्यालय", explanation: "प्रधान कार्यालयको परिभाषा यही छ।" },
+            { q: "'कार्यालय प्रमुख' ले कोलाई जनाउँछ?", options: ["महानिर्देशक, उपमहानिर्देशक, आयोजना प्रमुख", "केवल महानिर्देशक", "लेखा प्रमुख", "कार्यालय सहायक"], answer: "महानिर्देशक, उपमहानिर्देशक, आयोजना प्रमुख", explanation: "यी सबै कार्यालय प्रमुख हुन्।" },
+            { q: "'लेखा' शब्दमा के समावेश हुन्छ?", options: ["खाता, हिमाव, आर्थिक विवरण", "केवल खाता", "केवल हिमाव", "केवल आर्थिक विवरण"], answer: "खाता, हिमाव, आर्थिक विवरण", explanation: "लेखामा यी सबै समावेश हुन्छन्।" },
+            { q: "'विनियोजन' को अर्थ के हो?", options: ["प्रत्येक वर्ष निर्गनिद्धारा विभिन्न शीर्षकमा वितरित बजेट रकम", "महानिर्देशकको तलब", "कार्यालयको खर्च", "कर्मचारीको भत्ता"], answer: "प्रत्येक वर्ष निर्गनिद्धारा विभिन्न शीर्षकमा वितरित बजेट रकम", explanation: "विनियोजनको परिभाषा यही हो।" },
+            { q: "'दररेट' को परिभाषा के हो?", options: ["कार्यालयको माग अनुसार इच्छुक व्यक्तिले पेश गरेको दर रेट सहितको विवरण", "ठेक्काको मूल्य", "कर्मचारीको तलब", "कार्यालयको बजेट"], answer: "कार्यालयको माग अनुसार इच्छुक व्यक्तिले पेश गरेको दर रेट सहितको विवरण", explanation: "दररेटको परिभाषा यही हो।" },
+            { q: "'ठेक्का' शब्दले केलाई जनाउँछ?", options: ["मालसामान वा सेवा उपलव्ध गराउने सम्झौता", "कार्यालयको नियम", "महानिर्देशकको आदेश", "लेखा प्रणाली"], answer: "मालसामान वा सेवा उपलव्ध गराउने सम्झौता", explanation: "ठेक्काको अर्थ यही हो।" },
+            { q: "'नगद' मा के समावेश हुन्छ?", options: ["बिल, करेन्सी, बैंक ड्राफ्ट", "केवल बिल", "केवल करेन्सी", "केवल बैंक ड्राफ्ट"], answer: "बिल, करेन्सी, बैंक ड्राफ्ट", explanation: "नगदमा यी सबै समावेश हुन्छन्।" },
+            { q: "नियमावलीको व्याख्या कसले गर्छ?", options: ["महानिर्देशक मार्फत समिति", "लेखा प्रमुख", "कार्यालय प्रमुख", "सरकार"], answer: "महानिर्देशक मार्फत समिति", explanation: "व्याख्या यही प्रक्रियाले हुन्छ।" },
+            { q: "प्राधिकरणको कोष कहाँ जम्मा हुन्छ?", options: ["ऐनको दफा 10 बमोजिम प्राप्त रकम", "महानिर्देशकको खातामा", "कार्यालय प्रमुखको खातामा", "लेखा प्रमुखको खातामा"], answer: "ऐनको दफा 10 बमोजिम प्राप्त रकम", explanation: "कोष यहीमा जम्मा हुन्छ।" },
+            { q: "केन्द्रीय कोष खाता कसले सञ्चालन गर्छ?", options: ["महानिर्देशक र प्रशासन कार्यालयको अर्थ विभाग प्रमुख", "केवल महानिर्देशक", "केवल लेखा प्रमुख", "कार्यालय प्रमुख"], answer: "महानिर्देशक र प्रशासन कार्यालयको अर्थ विभाग प्रमुख", explanation: "यो संयुक्त सञ्चालन हुन्छ।" },
+            { q: "कार्य सञ्चालन खाता कसले सञ्चालन गर्छ?", options: ["कार्यालय प्रमुख र लेखा प्रमुख", "केवल कार्यालय प्रमुख", "केवल लेखा प्रमुख", "महानिर्देशक"], answer: "कार्यालय प्रमुख र लेखा प्रमुख", explanation: "यो संयुक्त सञ्चालन हुन्छ।" },
+            { q: "आय कति दिनभित्र बैंकमा जम्मा गर्नुपर्छ?", options: ["प्राप्त भएको दिन वा भोलिपल्ट", "७ दिनभित्र", "१५ दिनभित्र", "३० दिनभित्र"], answer: "प्राप्त भएको दिन वा भोलिपल्ट", explanation: "यो समयसीमा हो।" },
+            { q: "बजेट कुन महिनाभित्र तयार गर्नुपर्छ?", options: ["चैत्र महिनाभित्र", "माघ महिनाभित्र", "श्रावण महिनाभित्र", "कार्तिक महिनाभित्र"], answer: "चैत्र महिनाभित्र", explanation: "बजेट तयारीको समय यही हो।" },
+            { q: "पूरक बजेट कुन अवस्थामा प्रस्ताव गर्न सकिन्छ?", options: ["स्वीकृत रकम अपर्याप्त हुँदा", "महानिर्देशकको अनुमतिमा", "केवल तलब खर्चको लागि", "कार्यालय प्रमुखको आदेशमा"], answer: "स्वीकृत रकम अपर्याप्त हुँदा", explanation: "यो अवस्थामा पूरक बजेट प्रस्ताव हुन्छ।" },
+            { q: "दफा १ मा कति पटक 'प्राधिकरण' शब्द दोहोरिएको छ?", options: ["५", "१०", "१५", "२०"], answer: "१०", explanation: "दफा १ मा करिब १० पटक दोहोरिएको छ।" },
+            { q: "'कोष' को परिभाषा के हो?", options: ["प्राधिकरणको आफ्नो कोष", "केवल बैंक खाता", "महानिर्देशकको रकम", "कार्यालयको नगद"], answer: "प्राधिकरणको आफ्नो कोष", explanation: "कोषको परिभाषा यही हो।" },
+            { q: "'दस्तखत' कसले गर्नुपर्छ?", options: ["महानिर्देशक र अर्थ विभाग प्रमुख", "केवल महानिर्देशक", "केवल लेखा प्रमुख", "कार्यालय प्रमुख"], answer: "महानिर्देशक र अर्थ विभाग प्रमुख", explanation: "यो संयुक्त दस्तखत हो।" },
+            { q: "आयको विवरण कहाँ पठाउनुपर्छ?", options: ["प्रशासन कार्यालय", "महानिर्देशकको कार्यालय", "लेखा प्रमुख", "समिति"], answer: "प्रशासन कार्यालय", explanation: "विवरण यही पठाउनुपर्छ।" },
+            { q: "बजेट स्वीकृत कहाँ पठाउनुपर्छ?", options: ["श्री ४ को सरकारको समितिमा", "महानिर्देशकलाई", "लेखा प्रमुखलाई", "कार्यालय प्रमुखलाई"], answer: "श्री ४ को सरकारको समितिमा", explanation: "स्वीकृत बजेट यही पठाइन्छ।" },
+            { q: "रकमन्तरको विवरण कहाँ पठाउनुपर्छ?", options: ["समितिको पहिलो बैठकमा", "महानिर्देशकलाई", "लेखा प्रमुखलाई", "कार्यालय प्रमुखलाई"], answer: "समितिको पहिलो बैठकमा", explanation: "विवरण यही पठाइन्छ।" },
+            { q: "खर्च कसले स्वीकृत गर्न सक्छ?", options: ["अधिकार प्राप्त अधिकारी", "केवल महानिर्देशक", "केवल लेखा प्रमुख", "केवल कार्यालय प्रमुख"], answer: "अधिकार प्राप्त अधिकारी", explanation: "खर्च यिनीले स्वीकृत गर्छन्।" },
+            { q: "चेकबाट भुक्तानीको न्यूनतम सीमा कति हो?", options: ["५०,००० रूपैयाँ", "१,००,००० रूपैयाँ", "२,००,००० रूपैयाँ", "५,००,००० रूपैयाँ"], answer: "५०,००० रूपैयाँ", explanation: "यो सीमा हो।" },
+            { q: "लेखा प्रणाली कस्तो आधारमा हुन्छ?", options: ["दोहोरो लेखा प्रणाली", "एकल लेखा प्रणाली", "हस्तलिखित प्रणाली", "मैनुअल प्रणाली"], answer: "दोहोरो लेखा प्रणाली", explanation: "लेखा यही आधारमा हुन्छ।" },
+
+            // Medium Questions (28-38)
+            { q: "दफा १.३(२) मा कसले व्याख्या सहित निर्देशन दिन्छ?", options: ["मन्त्रालय", "महानिर्देशक", "समिति", "कार्यालय प्रमुख"], answer: "मन्त्रालय", explanation: "मन्त्रालयले व्याख्या सहित निर्देशन दिन्छ।" },
+            { q: "केन्द्रीय निकासा खर्च खाता कसले सञ्चालन गर्छ?", options: ["समितिले तोकेको बैंक", "महानिर्देशक एक्लै", "लेखा प्रमुख", "कार्यालय प्रमुख"], answer: "समितिले तोकेको बैंक", explanation: "यो खाता बैंकले सञ्चालन गर्छ।" },
+            { q: "रकमन्तरको लागि कति प्रतिशतसम्म महानिर्देशकले स्वीकृति दिन सक्छ?", options: ["१०%", "२०%", "३०%", "५०%"], answer: "१०%", explanation: "महानिर्देशकले १०% सम्म स्वीकृत गर्न सक्छ।" },
+            { q: "बजेट निकासा कुन आधारमा हुन्छ?", options: ["कार्य प्रगतिलाई आधार मानि", "महानिर्देशकको निर्णयले", "लेखा प्रमुखको सुझावले", "समितिको स्वीकृतिमा"], answer: "कार्य प्रगतिलाई आधार मानि", explanation: "निकासा कार्य प्रगतिमा आधारित हुन्छ।" },
+            { q: "सानो नगद कोषको अधिकतम सीमा कति हो?", options: ["१०,००० रूपैयाँ", "२५,००० रूपैयाँ", "५०,००० रूपैयाँ", "१,००,००० रूपैयाँ"], answer: "१०,००० रूपैयाँ", explanation: "सानो नगद कोषको सीमा यही हो।" },
+            { q: "आन्तरिक लेखा परीक्षण कसले गर्छ?", options: ["आन्तरिक लेखा परीक्षक", "महानिर्देशक", "लेखा प्रमुख", "कार्यालय प्रमुख"], answer: "आन्तरिक लेखा परीक्षक", explanation: "आन्तरिक परीक्षण यिनीले गर्छन्।" },
+            { q: "पेश्की फछ्र्यौट नगरेमा कति प्रतिशत व्याज लाग्छ?", options: ["१०% वार्षिक", "५% वार्षिक", "१५% वार्षिक", "२०% वार्षिक"], answer: "१०% वार्षिक", explanation: "फछ्र्यौट नगरेमा १०% व्याज लाग्छ।" },
+            { q: "सम्पत्तिको जिम्मा कसको मातहतमा रहन्छ?", options: ["लेखा प्रमुख र जिन्नी प्रमुख", "केवल कार्यालय प्रमुख", "महानिर्देशक", "कर्मचारी"], answer: "लेखा प्रमुख र जिन्नी प्रमुख", explanation: "सम्पत्तिको जिम्मा यिनीहरूमध्ये रहन्छ।" },
+            { q: "लिलाम विक्रीको जमानत रकम कति प्रतिशत हुन्छ?", options: ["५%", "१०%", "१५%", "२०%"], answer: "५%", explanation: "जमानत रकम ५% हुन्छ।" },
+            { q: "दफा ३.३.३(ख) मा कसले खर्च नियन्त्रण गर्छ?", options: ["महानिर्देशक", "लेखा प्रमुख", "कार्यालय प्रमुख", "समिति"], answer: "महानिर्देशक", explanation: "महानिर्देशकले खर्च नियन्त्रण गर्छन्।" },
+            { q: "दफा ६.३(१) मा निरीक्षण कति पटक हुन्छ?", options: ["दुई पटक", "एक पटक", "तीन पटक", "चार पटक"], answer: "दुई पटक", explanation: "प्रत्येक वर्ष दुई पटक निरीक्षण हुन्छ।" },
+
+            // Hard Questions (39-45)
+            { q: "दफा २.२(२) मा कसको जिम्मेवारी हुन्छ यदि रकम बैंकमा नजम्मा भएमा?", options: ["कार्यालय प्रमुख र नगद जिम्मा लिने कर्मचारी", "केवल महानिर्देशक", "लेखा प्रमुख", "समिति"], answer: "कार्यालय प्रमुख र नगद जिम्मा लिने कर्मचारी", explanation: "यी दुवैको जिम्मेवारी हुन्छ।" },
+            { q: "दफा ३.३.१(ङ) मा कुन अवस्थामा खर्च गर्न सकिन्छ?", options: ["समितिको तोकिएको रकमले कार्य सञ्चालनको लागि", "केवल महानिर्देशकको आदेशले", "लेखा प्रमुखको स्वीकृतिमा", "कार्यालय प्रमुखको निर्णयले"], answer: "समितिको तोकिएको रकमले कार्य सञ्चालनको लागि", explanation: "यो अवस्थामा खर्च हुन्छ।" },
+            { q: "दफा ६.४(२) मा बारम्बारको म्याद कति हो?", options: ["२१ दिन", "३० दिन", "४५ दिन", "६० दिन"], answer: "२१ दिन", explanation: "बारम्बारको म्याद २१ दिन हो।" },
+            { q: "दफा ६.४(१) मा कुन अवस्थामा बारम्बार गर्नुपर्छ?", options: ["सरुवा, बिदा, अवकाश वा कार्यालय खारेजीमा", "केवल सरुवामा", "केवल बिदामा", "केवल अवकाशमा"], answer: "सरुवा, बिदा, अवकाश वा कार्यालय खारेजीमा", explanation: "यी सबै अवस्थामा बारम्बार हुन्छ।" },
+            { q: "दफा ५.१(४)(घ) मा कति रकमसम्म महानिर्देशकले लिलाम विक्री स्वीकृत गर्न सक्छ?", options: ["१०,००,००० रूपैयाँ", "५,००,००० रूपैयाँ", "४०,००,००० रूपैयाँ", "२५,००,००० रूपैयाँ"], answer: "१०,००,००० रूपैयाँ", explanation: "महानिर्देशकले यति सम्म स्वीकृत गर्न सक्छन्।" },
+            { q: "दफा १.९ मा कुन प्रक्रिया अपनाइन्छ?", options: ["समितिको निर्णयद्वारा तोकिएको प्रक्रिया", "महानिर्देशकको आदेश", "लेखा प्रमुखको सुझाव", "कार्यालय प्रमुखको निर्णय"], answer: "समितिको निर्णयद्वारा तोकिएको प्रक्रिया", explanation: "यो प्रक्रिया अपनाइन्छ।" },
+            { q: "दफा ६.४(४) मा कुन सुविधा रोकिन्छ?", options: ["उपदान र निवृत्तिभरण", "केवल तलब", "केवल भत्ता", "केवल अवकाश"], answer: "उपदान र निवृत्तिभरण", explanation: "यी सुविधा रोकिन्छन्।" }
+        ];
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        const quizContainer = document.getElementById('quiz');
+        const scoreContainer = document.getElementById('score');
+        const currentScore = document.getElementById('current-score');
+        const progressBar = document.getElementById('progress');
+        const timerDisplay = document.getElementById('timer');
+        const resultsBtn = document.getElementById('results-btn');
+        let score = 0;
+        let answeredQuestions = 0;
+        let timeElapsed = 0;
+        let timerInterval;
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeElapsed++;
+                const minutes = Math.floor(timeElapsed / 60).toString().padStart(2, '0');
+                const seconds = (timeElapsed % 60).toString().padStart(2, '0');
+                timerDisplay.textContent = `समय: ${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function updateProgress() {
+            const progressPercentage = (answeredQuestions / questions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+        }
+
+        function showResults() {
+            quizContainer.style.display = 'none';
+            scoreContainer.textContent = `फाइनल स्कोर: ${score} बाट ${questions.length} (${((score / questions.length) * 100).toFixed(2)}%)`;
+            resultsBtn.style.display = 'block';
+            resultsBtn.onclick = () => {
+                quizContainer.style.display = 'block';
+                scoreContainer.textContent = '';
+                resultsBtn.style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                location.reload(); // Reset the quiz
+            };
+            clearInterval(timerInterval);
+        }
+
+        questions.forEach((q, i) => {
+            const div = document.createElement('div');
+            div.classList.add('question');
+            div.innerHTML = `<p>${i + 1}. ${q.q}</p>`;
+
+            const optsDiv = document.createElement('div');
+            optsDiv.classList.add('options');
+
+            const explanationDiv = document.createElement('div');
+            explanationDiv.classList.add('explanation');
+            explanationDiv.textContent = q.explanation;
+
+            const shuffled = shuffle(q.options.map(opt => ({ text: opt, isCorrect: opt === q.answer })));
+
+            shuffled.forEach(({ text, isCorrect }) => {
+                const btn = document.createElement('button');
+                btn.textContent = text;
+                btn.onclick = () => {
+                    if (btn.classList.contains('correct') || btn.classList.contains('wrong')) return;
+                    answeredQuestions++;
+                    updateProgress();
+                    currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+
+                    if (isCorrect) {
+                        btn.classList.add('correct');
+                        score++;
+                        currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+                    } else {
+                        btn.classList.add('wrong');
+                        optsDiv.querySelectorAll('button').forEach(b => {
+                            if (b.textContent === q.answer) {
+                                b.classList.add('correct');
+                            }
+                        });
+                    }
+
+                    optsDiv.querySelectorAll('button').forEach(b => b.disabled = true);
+                    explanationDiv.style.display = 'block';
+
+                    if (answeredQuestions === questions.length) {
+                        showResults();
+                    }
+                };
+                optsDiv.appendChild(btn);
+            });
+
+            div.appendChild(optsDiv);
+            div.appendChild(explanationDiv);
+            quizContainer.appendChild(div);
+        });
+
+        startTimer();
+    </script>
+</body>
+</html>
