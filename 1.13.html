@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>नागरिक उड्डयन सुरक्षा नियमावली, २०७३</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #c3dafe);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3a8a;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .progress-bar {
+            background: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .progress {
+            background: #3b82f6;
+            height: 100%;
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .question {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .question:hover {
+            transform: translateY(-2px);
+        }
+
+        .question p {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+        }
+
+        .options button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            color: #374151;
+        }
+
+        .options button:hover:not(:disabled) {
+            background: #f3f4f6;
+            border-color: #3b82f6;
+            transform: translateX(4px);
+        }
+
+        .options button.correct {
+            background: #bbf7d0;
+            border-color: #22c55e;
+            color: #166534;
+        }
+
+        .options button.wrong {
+            background: #fecaca;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .options button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .explanation {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #eff6ff;
+            border-radius: 8px;
+            color: #1e3a8a;
+            font-size: 0.95rem;
+        }
+
+        .score-container {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .results-btn {
+            display: none;
+            margin: 1rem auto;
+            padding: 0.75rem 2rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .results-btn:hover {
+            background: #2563eb;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+
+            .quiz-container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .question p {
+                font-size: 1rem;
+            }
+
+            .options button {
+                font-size: 0.9rem;
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>1.13 नागरिक उड्डयन सुरक्षा नियमावली, २०७३</h1>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <div class="timer" id="timer">समय: 00:00</div>
+            <div class="score" id="current-score">स्कोर: 0/50</div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div id="quiz"></div>
+        <div class="score-container">
+            <div class="score" id="score"></div>
+            <button class="results-btn" id="results-btn">नतिजा हेर्नुहोस्</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // Easy Questions (1-30)
+            { q: "नियमावलीको पूर्ण नाम के हो?", options: ["नागरिक उड्डयन सुरक्षा नियमावली, २०७३", "हवाई उड्डयन सुरक्षा नियमावली, २०७३", "नागरिक उड्डयन नियमावली, २०७३", "विमानस्थल सुरक्षा नियमावली, २०७३"], answer: "नागरिक उड्डयन सुरक्षा नियमावली, २०७३", explanation: "यो नियमावलीको पूर्ण नाम हो।" },
+            { q: "नियमावली कुन मितिमा प्रारम्भ भएको हो?", options: ["तुरुन्त प्रारम्भ", "२०७३/०१/०१", "२०७४/०१/०१", "२०७५/०१/०१"], answer: "तुरुन्त प्रारम्भ", explanation: "यो नियमावली तुरुन्त लागू भएको हो।" },
+            { q: "नियमावली कुन ऐनको आधारमा बनाइएको हो?", options: ["गैर वैनिक हवाई उड्डान ऐन, २०१५", "नागरिक उड्डयन ऐन, २०१५", "विमानस्थल सुरक्षा ऐन, २०१५", "हवाई सेवा ऐन, २०१५"], answer: "गैर वैनिक हवाई उड्डान ऐन, २०१५", explanation: "यो ऐनको आधारमा बनाइएको हो।" },
+            { q: '"अनधिकृत हस्तक्षेप" को परिभाषा के हो?', options: ["नागरिक उड्डयनको सुरक्षा भंग हुने कार्य", "विमानस्थलको प्रशासनिक कार्य", "यात्रुको सुरक्षा जाँच", "वायुसेवाको नियमित उडान"], answer: "नागरिक उड्डयनको सुरक्षा भंग हुने कार्य", explanation: "यो परिभाषा हो।" },
+            { q: '"नागरिक उड्डयन" मा कसलाई समावेश गरिन्छ?', options: ["यात्रु, कर्मचारी, जागिरुक", "केवल यात्रु", "केवल कर्मचारी", "केवल विमान"], answer: "यात्रु, कर्मचारी, जागिरुक", explanation: "यी सबै समावेश हुन्छन्।" },
+            { q: '"नागरिक उड्डयन कार्यालय" को परिभाषा के हो?', options: ["प्राधिकरणको विमानस्थल स्थित कार्यालय", "सरकारको केन्द्रीय कार्यालय", "वायुसेवाको प्रशासनिक कार्यालय", "हवाई ट्राफिक नियन्त्रण"], answer: "प्राधिकरणको विमानस्थल स्थित कार्यालय", explanation: "यो परिभाषा हो।" },
+            { q: "विमानस्थल सुरक्षा समितिमा कति सदस्य हुन्छन्?", options: ["१० भन्दा बढी", "५", "३", "१५"], answer: "१० भन्दा बढी", explanation: "सदस्य संख्या १० भन्दा बढी छ।" },
+            { q: "विमानस्थल सुरक्षा समितिको प्रमुख को हो?", options: ["अन्तर्राष्ट्रिय विमानस्थल प्रमुख", "महानिर्देशक", "गृह मन्त्रालय प्रमुख", "प्रहरी प्रमुख"], answer: "अन्तर्राष्ट्रिय विमानस्थल प्रमुख", explanation: "प्रमुख यही हो।" },
+            { q: "अनधिकृत प्रवेश नियन्त्रण कसले गर्छ?", options: ["विमानस्थल सुरक्षा अधिकारी", "यात्रु", "वायुसेवा कर्मचारी", "हवाई ट्राफिक नियन्त्रक"], answer: "विमानस्थल सुरक्षा अधिकारी", explanation: "यीले नियन्त्रण गर्छन्।" },
+            { q: "यात्रु र ह्यान्ड व्यागेजको जाँच कसले गर्छ?", options: ["सुरक्षा प्रहरी", "विमान चालक", "यात्रु स्वयं", "विमानस्थल प्रशासन"], answer: "सुरक्षा प्रहरी", explanation: "प्रहरीले जाँच गर्छ।" },
+            { q: "होल्ड व्यागेजको सुरक्षा जाँच कसले गर्छ?", options: ["विमानस्थल सुरक्षा टोली", "यात्रु", "वायुसेवा कम्पनी", "हवाई ट्राफिक नियन्त्रक"], answer: "विमानस्थल सुरक्षा टोली", explanation: "टोलीले जाँच गर्छ।" },
+            { q: "कार्गो सामानको सुरक्षा जाँच कस्तो हुन्छ?", options: ["सतर्कतापूर्वक", "केवल दृश्यात्मक", "यात्रुले", "कुनै जाँच नगरी"], answer: "सतर्कतापूर्वक", explanation: "सतर्कतापूर्वक जाँच हुन्छ।" },
+            { q: "वायुसेवा सञ्चालनमा सुरक्षा कसको जिम्मा हो?", options: ["वायुसेवा कम्पनी", "यात्रु", "विमान चालक मात्र", "हवाई ट्राफिक नियन्त्रण"], answer: "वायुसेवा कम्पनी", explanation: "कम्पनीको जिम्मा हो।" },
+            { q: "अनधिकृत हस्तक्षेपको रोकथाम कसले गर्छ?", options: ["नागरिक उड्डयन सुरक्षा अधिकारी", "केवल प्रहरी", "यात्रु", "विमान कम्पनी"], answer: "नागरिक उड्डयन सुरक्षा अधिकारी", explanation: "यीले रोकथाम गर्छन्।" },
+            { q: "आपतकालीन अवस्थामा खोज र उद्धार कसले गर्छ?", options: ["विमानस्थल सुरक्षा टोली", "वायुसेवा कम्पनी", "यात्रु", "हवाई ट्राफिक नियन्त्रण"], answer: "विमानस्थल सुरक्षा टोली", explanation: "टोलीले गर्छ।" },
+            { q: "सुरक्षा उपकरणको व्यवस्था कसले गर्छ?", options: ["विमानस्थल प्रशासन", "यात्रु", "वायुसेवा कम्पनी", "सरकार"], answer: "विमानस्थल प्रशासन", explanation: "प्रशासनले गर्छ।" },
+            { q: "विमानस्थल सुरक्षा कार्यक्रमको उद्देश्य के हो?", options: ["सुरक्षा सुनिश्चितता", "यात्रुको मनोरञ्जन", "विमानको मर्मत", "हवाई ट्राफिक नियन्त्रण"], answer: "सुरक्षा सुनिश्चितता", explanation: "यो उद्देश्य हो।" },
+            { q: "होल्ड व्यागेजको परिभाषा के हो?", options: ["यात्रुले चढ्न नसकेको सामान", "यात्रुको ह्यान्ड व्यागेज", "विमानको इन्धन", "यात्रुको खाना"], answer: "यात्रुले चढ्न नसकेको सामान", explanation: "यो परिभाषा हो।" },
+            { q: "अनधिकृत हस्तक्षेपको निम्ति कस्तो व्यवस्था हुन्छ?", options: ["कडा सुरक्षा", "केवल जानकारी", "यात्रुको सहमति", "कुनै व्यवस्था नहुने"], answer: "कडा सुरक्षा", explanation: "यो व्यवस्था हो।" },
+            { q: "विमानस्थलमा निषेधित क्षेत्र के हो?", options: ["सुरक्षा क्षेत्र", "यात्रु प्रतीक्षालय", "विमान चालक कक्ष", "हवाई ट्राफिक टावर"], answer: "सुरक्षा क्षेत्र", explanation: "यो निषेधित क्षेत्र हो।" },
+            { q: "विमानस्थल सुरक्षा जाँच कसको अनुमतिमा हुन्छ?", options: ["प्राधिकरण", "यात्रु", "वायुसेवा", "प्रहरी"], answer: "प्राधिकरण", explanation: "प्राधिकरणको अनुमति हुन्छ।" },
+            { q: "कार्गो सामानको जाँच कहाँ हुन्छ?", options: ["विमानस्थल", "हवाई जहाजमा", "यात्रु प्रतीक्षालय", "बाहिर"], answer: "विमानस्थल", explanation: "विमानस्थलमा हुन्छ।" },
+            { q: "सुरक्षा प्रहरीको मुख्य भूमिका के हो?", options: ["यात्रु जाँच", "विमान उडान", "हवाई ट्राफिक नियन्त्रण", "विमान मर्मत"], answer: "यात्रु जाँच", explanation: "यो भूमिका हो।" },
+            { q: "अनधिकृत प्रवेश रोक्न कस्तो उपाय हुन्छ?", options: ["नियन्त्रण बिन्दु", "केवल सूचना", "यात्रुको सहमति", "कुनै उपाय नहुने"], answer: "नियन्त्रण बिन्दु", explanation: "यो उपाय हो।" },
+            { q: "वायुसेवा सुरक्षा कार्यक्रम कसले तयार गर्छ?", options: ["वायुसेवा कम्पनी", "यात्रु", "विमानस्थल", "सरकार"], answer: "वायुसेवा कम्पनी", explanation: "कम्पनीले तयार गर्छ।" },
+            { q: "हवाई सुरक्षा व्यवस्था कहाँ लागू हुन्छ?", options: ["विमानस्थल", "होटल", "सडक", "रेल"], answer: "विमानस्थल", explanation: "विमानस्थलमा लागू हुन्छ।" },
+            { q: "सुरक्षा जाँचमा कस्तो उपकरण प्रयोग हुन्छ?", options: ["X-रे मेसिन", "केवल आँखाले", "मोबाइल", "क्यामेरा मात्र"], answer: "X-रे मेसिन", explanation: "यो प्रयोग हुन्छ।" },
+            { q: "विमानस्थल सुरक्षा समितिको बैठक कति पटक हुन्छ?", options: ["आवश्यकता अनुसार", "हप्तामा एक पटक", "महिनामा एक पटक", "सधैं"], answer: "आवश्यकता अनुसार", explanation: "आवश्यकता अनुसार हुन्छ।" },
+            { q: "अनधिकृत हस्तक्षेपको कारबाही कसले गर्छ?", options: ["प्रहरी", "यात्रु", "वायुसेवा", "विमान चालक"], answer: "प्रहरी", explanation: "प्रहरीले गर्छ।" },
+            { q: "विमानस्थल सुरक्षा कार्यक्रमको अनुगमन कसले गर्छ?", options: ["सुरक्षा अधिकारी", "यात्रु", "वायुसेवा", "हवाई ट्राफिक"], answer: "सुरक्षा अधिकारी", explanation: "अधिकारीले गर्छ।" },
+
+            // Medium Questions (31-42)
+            { q: "नियमावलीले कति प्रकारका व्यागेज उल्लेख गरेको छ?", options: ["४", "३", "५", "६"], answer: "४", explanation: "४ प्रकारका व्यागेज उल्लेख छन्।" },
+            { q: "विमानस्थल सुरक्षा समितिको अधिकार कसले प्रत्यायोजन गर्न सक्छ?", options: ["समिति स्वयं", "सरकार", "प्रहरी", "विमान कम्पनी"], answer: "समिति स्वयं", explanation: "समितिले प्रत्यायोजन गर्छ।" },
+            { q: "विमानस्थल सुरक्षा अधिकारीले कस्तो कारबाही गर्न सक्छ?", options: ["कर्मचारीलाई मुक्त गर्न", "केवल सुझाव दिन", "यात्रुको टिकट रद्द गर्न", "विमान रोक्न"], answer: "कर्मचारीलाई मुक्त गर्न", explanation: "यो कारबाही हो।" },
+            { q: "हवाई सुरक्षा व्यवस्था नियमावली कहिले जारी भएको हो?", options: ["२०१५", "२०७३", "२०७५", "२०७८"], answer: "२०१५", explanation: "यो वर्षमा जारी भएको हो।" },
+            { q: "विमानस्थल सुरक्षा जाँच कति पटक गर्नुपर्छ?", options: ["आवश्यकता अनुसार", "केवल एक पटक", "दैनिक", "हप्तामा एक पटक"], answer: "आवश्यकता अनुसार", explanation: "आवश्यकता अनुसार हुन्छ।" },
+            { q: "वायुसेवा कम्पनीले कस्तो कार्यविधि पालना गर्नुपर्छ?", options: ["सुरक्षा कार्यविधि", "केवल उडान तालिका", "यात्रु सूची", "इन्धन व्यवस्थापन"], answer: "सुरक्षा कार्यविधि", explanation: "यो पालना गर्नुपर्छ।" },
+            { q: "अनधिकृत प्रवेश रोक्न कस्तो उपाय हुन्छ?", options: ["प्रवेश नियन्त्रण", "केवल चेतावनी", "यात्रुको सहमति", "कुनै उपाय नहुने"], answer: "प्रवेश नियन्त्रण", explanation: "यो उपाय हो।" },
+            { q: "विमानस्थल सुरक्षा समितिको बैठक कहाँ हुन्छ?", options: ["विमानस्थल", "सरकारको कार्यालय", "होटल", "प्रहरी चौकी"], answer: "विमानस्थल", explanation: "विमानस्थलमा हुन्छ।" },
+            { q: "होल्ड व्यागेजको जाँच कति कडा हुन्छ?", options: ["अत्यधिक कडा", "मध्यम", "कमजोर", "कुनै नहुने"], answer: "अत्यधिक कडा", explanation: "अत्यधिक कडा जाँच हुन्छ।" },
+            { q: "वायुसेवा सुरक्षा कार्यक्रममा कति अनुच्छेद छन्?", options: ["९", "१०", "१२", "१५"], answer: "९", explanation: "९ अनुच्छेद छन्।" },
+            { q: "सुरक्षा जाँचको जिम्मा कसको हो?", options: ["सुरक्षा टोली", "यात्रु", "वायुसेवा", "हवाई ट्राफिक"], answer: "सुरक्षा टोली", explanation: "टोलीको जिम्मा हो।" },
+            { q: "विमानस्थल सुरक्षा अधिकारीको नियुक्ति कसले गर्छ?", options: ["प्राधिकरण", "सरकार", "प्रहरी", "वायुसेवा"], answer: "प्राधिकरण", explanation: "प्राधिकरणले गर्छ।" },
+
+            // Hard Questions (43-50)
+            { q: "विमानस्थल सुरक्षा समितिको सदस्य संख्या कति छ?", options: ["१०", "१२", "८", "६"], answer: "१२", explanation: "सदस्य संख्या १२ छ।" },
+            { q: "विमानस्थल सुरक्षा कार्यक्रममा कति अनुच्छेद छन्?", options: ["९", "१०", "१२", "१५"], answer: "९", explanation: "९ अनुच्छेद छन्।" },
+            { q: "वायुसेवा सञ्चालन कार्यक्रममा कति विषय उल्लेख छन्?", options: ["१०", "८", "१२", "१५"], answer: "१०", explanation: "१० विषय उल्लेख छन्।" },
+            { q: "अनधिकृत हस्तक्षेप रोक्न कस्तो उपकरण प्रयोग हुन्छ?", options: ["सुरक्षा उपकरण", "केवल क्यामरा", "यात्रुको मोबाइल", "कुनै उपकरण नहुने"], answer: "सुरक्षा उपकरण", explanation: "यो प्रयोग हुन्छ।" },
+            { q: "विमानस्थल सुरक्षा अधिकारीले कसको सिफारिसमा कारबाही गर्छ?", options: ["प्राधिकरण प्रमुख", "प्रहरी", "यात्रु", "विमान कम्पनी"], answer: "प्राधिकरण प्रमुख", explanation: "प्रमुखको सिफारिसमा हुन्छ।" },
+            { q: "विमानस्थल सुरक्षा जाँचको मापदण्ड कसले बनाउँछ?", options: ["प्राधिकरण", "वायुसेवा", "यात्रु", "प्रहरी"], answer: "प्राधिकरण", explanation: "प्राधिकरणले बनाउँछ।" },
+            { q: "हवाई सुरक्षा व्यवस्थाको अनुगमन कसले गर्छ?", options: ["सुरक्षा अधिकारी", "वायुसेवा", "यात्रु", "हवाई ट्राफिक"], answer: "सुरक्षा अधिकारी", explanation: "अधिकारीले गर्छ।" },
+            { q: "विमानस्थल सुरक्षा समितिको निर्णय कति समयमा लागू हुन्छ?", options: ["तुरुन्त", "१ महिना पछि", "६ महिना पछि", "१ वर्ष पछि"], answer: "तुरुन्त", explanation: "तुरुन्त लागू हुन्छ।" }
+        ];
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        const quizContainer = document.getElementById('quiz');
+        const scoreContainer = document.getElementById('score');
+        const currentScore = document.getElementById('current-score');
+        const progressBar = document.getElementById('progress');
+        const timerDisplay = document.getElementById('timer');
+        const resultsBtn = document.getElementById('results-btn');
+        let score = 0;
+        let answeredQuestions = 0;
+        let timeElapsed = 0;
+        let timerInterval;
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeElapsed++;
+                const minutes = Math.floor(timeElapsed / 60).toString().padStart(2, '0');
+                const seconds = (timeElapsed % 60).toString().padStart(2, '0');
+                timerDisplay.textContent = `समय: ${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function updateProgress() {
+            const progressPercentage = (answeredQuestions / questions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+        }
+
+        function showResults() {
+            quizContainer.style.display = 'none';
+            scoreContainer.textContent = `फाइनल स्कोर: ${score} बाट ${questions.length} (${((score / questions.length) * 100).toFixed(2)}%)`;
+            resultsBtn.style.display = 'block';
+            resultsBtn.onclick = () => {
+                quizContainer.style.display = 'block';
+                scoreContainer.textContent = '';
+                resultsBtn.style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                location.reload(); // Reset the quiz
+            };
+            clearInterval(timerInterval);
+        }
+
+        questions.forEach((q, i) => {
+            const div = document.createElement('div');
+            div.classList.add('question');
+            div.innerHTML = `<p>${i + 1}. ${q.q}</p>`;
+
+            const optsDiv = document.createElement('div');
+            optsDiv.classList.add('options');
+
+            const explanationDiv = document.createElement('div');
+            explanationDiv.classList.add('explanation');
+            explanationDiv.textContent = q.explanation;
+
+            const shuffled = shuffle(q.options.map(opt => ({ text: opt, isCorrect: opt === q.answer })));
+
+            shuffled.forEach(({ text, isCorrect }) => {
+                const btn = document.createElement('button');
+                btn.textContent = text;
+                btn.onclick = () => {
+                    if (btn.classList.contains('correct') || btn.classList.contains('wrong')) return;
+                    answeredQuestions++;
+                    updateProgress();
+                    currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+
+                    if (isCorrect) {
+                        btn.classList.add('correct');
+                        score++;
+                        currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+                    } else {
+                        btn.classList.add('wrong');
+                        optsDiv.querySelectorAll('button').forEach(b => {
+                            if (b.textContent === q.answer) {
+                                b.classList.add('correct');
+                            }
+                        });
+                    }
+
+                    optsDiv.querySelectorAll('button').forEach(b => b.disabled = true);
+                    explanationDiv.style.display = 'block';
+
+                    if (answeredQuestions === questions.length) {
+                        showResults();
+                    }
+                };
+                optsDiv.appendChild(btn);
+            });
+
+            div.appendChild(optsDiv);
+            div.appendChild(explanationDiv);
+            quizContainer.appendChild(div);
+        });
+
+        startTimer();
+    </script>
+</body>
+</html>
