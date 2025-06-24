@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>विज्ञान तथा प्रविधि उपलब्धि मोक्ड टेस्ट</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #c3dafe);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3a8a;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .progress-bar {
+            background: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .progress {
+            background: #3b82f6;
+            height: 100%;
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .question {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .question:hover {
+            transform: translateY(-2px);
+        }
+
+        .question p {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+        }
+
+        .options button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            color: #374151;
+        }
+
+        .options button:hover:not(:disabled) {
+            background: #f3f4f6;
+            border-color: #3b82f6;
+            transform: translateX(4px);
+        }
+
+        .options button.correct {
+            background: #bbf7d0;
+            border-color: #22c55e;
+            color: #166534;
+        }
+
+        .options button.wrong {
+            background: #fecaca;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .options button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .explanation {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #eff6ff;
+            border-radius: 8px;
+            color: #1e3a8a;
+            font-size: 0.95rem;
+        }
+
+        .score-container {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .results-btn {
+            display: none;
+            margin: 1rem auto;
+            padding: 0.75rem 2rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .results-btn:hover {
+            background: #2563eb;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+
+            .quiz-container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .question p {
+                font-size: 1rem;
+            }
+
+            .options button {
+                font-size: 0.9rem;
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>विज्ञान तथा प्रविधि उपलब्धि मोक्ड टेस्ट</h1>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <div class="timer" id="timer">समय: 00:00</div>
+            <div class="score" id="current-score">स्कोर: 0/30</div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div id="quiz"></div>
+        <div class="score-container">
+            <div class="score" id="score"></div>
+            <button class="results-btn" id="results-btn">नतिजा हेर्नुहोस्</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // Easy Questions (1-18)
+            { q: "इन्टरनेटको आविष्कार कुन दशकमा भएको हो?", options: ["१९६०-७०", "१९५०-६०", "१९७०-८०", "१९८०-९०"], answer: "१९६०-७०", explanation: "इन्टरनेटको आविष्कार १९६०-७० दशकमा भएको हो।" },
+            { q: "मानव जीनोम परियोजनाको समापन कुन वर्ष भएको हो?", options: ["२००३", "२००५", "२००१", "२००७"], answer: "२००३", explanation: "जीनोम परियोजना २००३ मा सम्पन्न भएको हो।" },
+            { q: "नेपालको पहिलो उपग्रह कुन हो?", options: ["नेपालसेट-१", "भूतनसेट", "हिमालसेट", "काठमाडौसेट"], answer: "नेपालसेट-१", explanation: "नेपालसेट-१ नेपालको पहिलो उपग्रह हो।" },
+            { q: "पहिलो मानव चन्द्रमामा कुन वर्ष पुगेको हो?", options: ["१९६९", "१९७२", "१९६५", "१९७५"], answer: "१९६९", explanation: "पहिलो मानव १९६९ मा चन्द्रमामा पुगेको हो।" },
+            { q: "विश्वको पहिलो कम्प्युटर कुन हो?", options: ["ENIAC", "UNIVAC", "EDVAC", "IBM"], answer: "ENIAC", explanation: "ENIAC पहिलो कम्प्युटर हो।" },
+            { q: "नेपालको पहिलो सौर्य ऊर्जा परियोजना कहाँ सुरु भएको हो?", options: ["मुस्ताङ", "काठमाडौं", "पोखरा", "विराटनगर"], answer: "मुस्ताङ", explanation: "मुस्ताङमा पहिलो सौर्य परियोजना सुरु भएको हो।" },
+            { q: "पहिलो स्मार्टफोन कुन हो?", options: ["IBM Simon", "Nokia 3310", "BlackBerry", "iPhone"], answer: "IBM Simon", explanation: "IBM Simon पहिलो स्मार्टफोन हो।" },
+            { q: "नेपालको पहिलो इन्टरनेट सेवा कुन वर्ष सुरु भएको हो?", options: ["१९९५", "१९९८", "२०००", "१९९२"], answer: "१९९५", explanation: "इन्टरनेट सेवा १९९५ मा सुरु भएको हो।" },
+            { q: "विश्वको पहिलो रेल कुन देशमा चलेको हो?", options: ["बेलायत", "फ्रान्स", "जर्मनी", "अमेरिका"], answer: "बेलायत", explanation: "बेलायतमा पहिलो रेल चलेको हो।" },
+            { q: "नेपालको पहिलो डिजिटल हस्पिटल कहाँ छ?", options: ["काठमाडौं", "पोखरा", "चितवन", "विराटनगर"], answer: "काठमाडौं", explanation: "काठमाडौंमा पहिलो डिजिटल हस्पिटल छ।" },
+            { q: "पहिलो अन्तरिक्ष यात्री को थिए?", options: ["युरी गागारिन", "निल आर्मस्ट्रङ", "बज एल्ड्रिन", "अलन शेपर्ड"], answer: "युरी गागारिन", explanation: "युरी गागारिन पहिलो अन्तरिक्ष यात्री थिए।" },
+            { q: "नेपालको पहिलो साइबर सुरक्षा नीति कुन वर्ष बनाइएको हो?", options: ["२०१४", "२०१६", "२०१८", "२०२०"], answer: "२०१४", explanation: "साइबर सुरक्षा नीति २०१४ मा बनाइएको हो।" },
+            { q: "पहिलो टीकाकरण कुन रोगको लागि भएको हो?", options: ["चेचक", "डेंगु", "मलेरिया", "इबोला"], answer: "चेचक", explanation: "चेचकको लागि पहिलो टीकाकरण भएको हो।" },
+            { q: "नेपालको पहिलो मोबाइल नेटवर्क कुन हो?", options: ["एनसेल", "एनटीसी", "स्मार्ट सेल", "यूटीएल"], answer: "एनटीसी", explanation: "एनटीसी पहिलो मोबाइल नेटवर्क हो।" },
+            { q: "पहिलो एरोप्लेन कसले बनाए?", options: ["राइट ब्रदर्स", "टेस्ला", "एडिसन", "फोर्ड"], answer: "राइट ब्रदर्स", explanation: "राइट ब्रदर्सले एरोप्लेन बनाए।" },
+            { q: "नेपालको पहिलो अटोमेसन बैंक कुन हो?", options: ["नेपाल बैंक", "एनसिएल", "एचएचबीएल", "सिद्धार्थ बैंक"], answer: "नेपाल बैंक", explanation: "नेपाल बैंक पहिलो अटोमेसन बैंक हो।" },
+            { q: "पहिलो रंगिन टिभी कुन वर्ष सुरु भएको हो?", options: ["१९६७", "१९५५", "१९७५", "१९८०"], answer: "१९६७", explanation: "रंगिन टिभी १९६७ मा सुरु भएको हो।" },
+            { q: "नेपालको पहिलो स्याटेलाइट लन्च कुन देशले सहयोग गर्यो?", options: ["चीन", "भारत", "अमेरिका", "रुस"], answer: "चीन", explanation: "चीनले सहयोग गर्यो।" },
+
+            // Medium Questions (19-26)
+            { q: "पहिलो मानव चन्द्रमामा कुन वर्ष पुगेको हो?", options: ["१९६९", "१९७२", "१९६५", "१९७५"], answer: "१९६९", explanation: "पहिलो मानव १९६९ मा चन्द्रमामा पुगेको हो।" },
+            { q: "नेपालसेट-१ कुन वर्ष लन्च भएको हो?", options: ["२०२२", "२०२०", "२०१९", "२०२३"], answer: "२०२२", explanation: "नेपालसेट-१ २०२२ मा लन्च भएको हो।" },
+            { q: "पहिलो कम्प्युटर प्रोग्रामर को थिइन्?", options: ["एडा लभलेस", "ग्रेस होपर", "मार्गरेट हैमिल्टन", "जीन बार्टिक"], answer: "एडा लभलेस", explanation: "एडा लभलेस पहिलो प्रोग्रामर थिइन्।" },
+            { q: "नेपालको पहिलो सौर्य प्लान्ट कति मेगावाटको छ?", options: ["१ मेगावाट", "५ मेगावाट", "१० मेगावाट", "१५ मेगावाट"], answer: "१ मेगावाट", explanation: "पहिलो सौर्य प्लान्ट १ मेगावाटको छ।" },
+            { q: "पहिलो इन्टरनेट ब्राउजर कुन हो?", options: ["WorldWideWeb", "Netscape", "Internet Explorer", "Mozilla"], answer: "WorldWideWeb", explanation: "WorldWideWeb पहिलो ब्राउजर हो।" },
+            { q: "नेपालको पहिलो डिजिटल म्याप कुन वर्ष बनेको हो?", options: ["२०१५", "२०१६", "२०१७", "२०१८"], answer: "२०१६", explanation: "डिजिटल म्याप २०१६ मा बनेको हो।" },
+            { q: "पहिलो रोग निदान मेसिन कुन हो?", options: ["X-ray", "MRI", "CT Scan", "Ultrasound"], answer: "X-ray", explanation: "X-ray पहिलो निदान मेसिन हो।" },
+            { q: "नेपालको पहिलो आर्टिफिसियल इन्टेलिजेन्स परियोजना कुन हो?", options: ["नेपालआईएआई", "हिमालआईए", "काठमाडौआईए", "पोखराआईए"], answer: "नेपालआईएआई", explanation: "नेपालआईएआई पहिलो परियोजना हो।" },
+
+            // Hard Questions (27-30)
+            { q: "पहिलो कम्प्युटर बग (bug) कुन वर्ष फेला परेको हो?", options: ["१९४७", "१९५०", "१९६०", "१९४०"], answer: "१९४७", explanation: "पहिलो बग १९४७ मा फेला परेको हो।" },
+            { q: "नेपालको पहिलो स्याटेलाइट कति किलोको छ?", options: ["१४ किलो", "२० किलो", "३० किलो", "४० किलो"], answer: "१४ किलो", explanation: "नेपालसेट-१ १४ किलोको छ।" },
+            { q: "पहिलो रोग प्रतिरोधी खोप कुन हो?", options: ["पोलियो", "डिप्थेरिया", "टेटनस", "खसखस"], answer: "पोलियो", explanation: "पोलियो पहिलो प्रतिरोधी खोप हो।" },
+            { q: "नेपालको पहिलो ५जी नेटवर्क कुन वर्ष सुरु भएको हो?", options: ["२०२३", "२०२४", "२०२५", "२०२६"], answer: "२०२४", explanation: "५जी नेटवर्क २०२४ मा सुरु भएको हो।" }
+        ];
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        const quizContainer = document.getElementById('quiz');
+        const scoreContainer = document.getElementById('score');
+        const currentScore = document.getElementById('current-score');
+        const progressBar = document.getElementById('progress');
+        const timerDisplay = document.getElementById('timer');
+        const resultsBtn = document.getElementById('results-btn');
+        let score = 0;
+        let answeredQuestions = 0;
+        let timeElapsed = 0;
+        let timerInterval;
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeElapsed++;
+                const minutes = Math.floor(timeElapsed / 60).toString().padStart(2, '0');
+                const seconds = (timeElapsed % 60).toString().padStart(2, '0');
+                timerDisplay.textContent = `समय: ${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function updateProgress() {
+            const progressPercentage = (answeredQuestions / questions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+        }
+
+        function showResults() {
+            quizContainer.style.display = 'none';
+            scoreContainer.textContent = `फाइनल स्कोर: ${score} बाट ${questions.length} (${((score / questions.length) * 100).toFixed(2)}%)`;
+            resultsBtn.style.display = 'block';
+            resultsBtn.onclick = () => {
+                quizContainer.style.display = 'block';
+                scoreContainer.textContent = '';
+                resultsBtn.style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                location.reload(); // Reset the quiz
+            };
+            clearInterval(timerInterval);
+        }
+
+        questions.forEach((q, i) => {
+            const div = document.createElement('div');
+            div.classList.add('question');
+            div.innerHTML = `<p>${i + 1}. ${q.q}</p>`;
+
+            const optsDiv = document.createElement('div');
+            optsDiv.classList.add('options');
+
+            const explanationDiv = document.createElement('div');
+            explanationDiv.classList.add('explanation');
+            explanationDiv.textContent = q.explanation;
+
+            const shuffled = shuffle(q.options.map(opt => ({ text: opt, isCorrect: opt === q.answer })));
+
+            shuffled.forEach(({ text, isCorrect }) => {
+                const btn = document.createElement('button');
+                btn.textContent = text;
+                btn.onclick = () => {
+                    if (btn.classList.contains('correct') || btn.classList.contains('wrong')) return;
+                    answeredQuestions++;
+                    updateProgress();
+                    currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+
+                    if (isCorrect) {
+                        btn.classList.add('correct');
+                        score++;
+                        currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+                    } else {
+                        btn.classList.add('wrong');
+                        optsDiv.querySelectorAll('button').forEach(b => {
+                            if (b.textContent === q.answer) {
+                                b.classList.add('correct');
+                            }
+                        });
+                    }
+
+                    optsDiv.querySelectorAll('button').forEach(b => b.disabled = true);
+                    explanationDiv.style.display = 'block';
+
+                    if (answeredQuestions === questions.length) {
+                        showResults();
+                    }
+                };
+                optsDiv.appendChild(btn);
+            });
+
+            div.appendChild(optsDiv);
+            div.appendChild(explanationDiv);
+            quizContainer.appendChild(div);
+        });
+
+        startTimer();
+    </script>
+</body>
+</html>
