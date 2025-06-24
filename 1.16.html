@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>समसामयिक घटना मोक्ड टेस्ट</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #c3dafe);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3a8a;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .progress-bar {
+            background: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .progress {
+            background: #3b82f6;
+            height: 100%;
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .question {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .question:hover {
+            transform: translateY(-2px);
+        }
+
+        .question p {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+        }
+
+        .options button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            color: #374151;
+        }
+
+        .options button:hover:not(:disabled) {
+            background: #f3f4f6;
+            border-color: #3b82f6;
+            transform: translateX(4px);
+        }
+
+        .options button.correct {
+            background: #bbf7d0;
+            border-color: #22c55e;
+            color: #166534;
+        }
+
+        .options button.wrong {
+            background: #fecaca;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .options button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .explanation {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #eff6ff;
+            border-radius: 8px;
+            color: #1e3a8a;
+            font-size: 0.95rem;
+        }
+
+        .score-container {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .results-btn {
+            display: none;
+            margin: 1rem auto;
+            padding: 0.75rem 2rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .results-btn:hover {
+            background: #2563eb;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+
+            .quiz-container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .question p {
+                font-size: 1rem;
+            }
+
+            .options button {
+                font-size: 0.9rem;
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>समसामयिक घटना मोक्ड टेस्ट</h1>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <div class="timer" id="timer">समय: 00:00</div>
+            <div class="score" id="current-score">स्कोर: 0/30</div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div id="quiz"></div>
+        <div class="score-container">
+            <div class="score" id="score"></div>
+            <button class="results-btn" id="results-btn">नतिजा हेर्नुहोस्</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // Easy Questions (1-18)
+            { q: "नेपालको २०८२/८३ को बजेटको प्रमुख प्राथमिकता के हो?", options: ["पूर्वाधार विकास", "शिक्षा मात्र", "स्वास्थ्य मात्र", "पर्यटन मात्र"], answer: "पूर्वाधार विकास", explanation: "२०८२/८३ को बजेटको प्राथमिकता पूर्वाधार विकास हो।" },
+            { q: "२०२५ मा आयोजित हुने अनुमानित क्षेत्रीय खेलकुद कुन हो?", options: ["दक्षिण एसियाली खेलकुद", "ओलम्पिक", "विश्वकप", "एशियाड"], answer: "दक्षिण एसियाली खेलकुद", explanation: "२०२५ मा दक्षिण एसियाली खेलकुद अनुमानित छ।" },
+            { q: "२०२४ को नोबेल शान्ति पुरस्कार कसले पाए?", options: ["जलवायु परिवर्तन कार्यकर्ता", "लेखक", "वैज्ञानिक", "राजनीतिज्ञ"], answer: "जलवायु परिवर्तन कार्यकर्ता", explanation: "२०२४ मा जलवायु कार्यकर्ताले पाए।" },
+            { q: "नेपालको राष्ट्रिय खेल के हो?", options: ["डान्डी भयो", "क्रिकेट", "फुटबल", "भलिबल"], answer: "डान्डी भयो", explanation: "डान्डी भयो राष्ट्रिय खेल हो।" },
+            { q: "२०२५ मा आयोजित हुने प्रमुख अन्तर्राष्ट्रिय सम्मेलन के हो?", options: ["जलवायु परिवर्तन सम्मेलन", "व्यापार सम्मेलन", "शिक्षा सम्मेलन", "स्वास्थ्य सम्मेलन"], answer: "जलवायु परिवर्तन सम्मेलन", explanation: "२०२५ मा जलवायु सम्मेलन प्रमुख छ।" },
+            { q: "नेपालको हालको प्रधानमन्त्री को हुन् (२०२५ सम्म)?", options: ["केपी शर्मा ओली", "पुष्पकमल दाहाल", "शेर बहादुर देउवा", "बिष्णु पौडेल"], answer: "बिष्णु पौडेल", explanation: "बिष्णु पौडेल हालका प्रधानमन्त्री हुन्।" },
+            { q: "२०२४ को ओलम्पिक कहाँ आयोजना भएको हो?", options: ["पेरिस", "टोकियो", "लन्डन", "रियो"], answer: "पेरिस", explanation: "२०२४ को ओलम्पिक पेरिसमा भएको हो।" },
+            { q: "नेपालमा २०२५ मा सुरु भएको ठूलो परियोजना के हो?", options: ["फास्ट ट्र्याक", "हवाई अड्डा", "सडक", "जलविद्युत्"], answer: "फास्ट ट्र्याक", explanation: "फास्ट ट्र्याक २०२५ मा सुरु भएको हो।" },
+            { q: "विश्वको सर्वोच्च पुरस्कार कुन हो?", options: ["नोबेल पुरस्कार", "ओस्कार", "ग्रामी", "पुलित्जर"], answer: "नोबेल पुरस्कार", explanation: "नोबेल पुरस्कार सर्वोच्च हो।" },
+            { q: "नेपालको पहिलो महिला राष्ट्रपति को हुन्?", options: ["विद्या देवी भण्डारी", "सविता भण्डारी", "राम कुमारी झाँक्री", "उषा गुरुङ"], answer: "विद्या देवी भण्डारी", explanation: "विद्या देवी भण्डारी पहिलो महिला राष्ट्रपति हुन्।" },
+            { q: "२०२५ मा आयोजित फिफा विश्वकप कहाँ हुने अनुमान छ?", options: ["कतार", "अमेरिका", "ब्राजिल", "अर्जेन्टिना"], answer: "अमेरिका", explanation: "अमेरिकामा २०२५ मा हुने अनुमान छ।" },
+            { q: "नेपालको हालको अर्थमन्त्री को हुन् (२०२५ सम्म)?", options: ["बरशमान पुन", "महेश्वर गिरी", "जनार्दन शर्मा", "राम कार्की"], answer: "राम कार्की", explanation: "राम कार्की हालका अर्थमन्त्री हुन्।" },
+            { q: "२०२४ को ग्रामी पुरस्कार कसले पाए?", options: ["बिली इलिश", "ड्रेक", "टेलर स्विफ्ट", "बियान्से"], answer: "बिली इलिश", explanation: "बिली इलिशले २०२४ मा पाए।" },
+            { q: "नेपालमा २०२५ मा सुरु भएको डिजिटल परियोजना के हो?", options: ["डिजिटल नेपाल", "स्मार्ट सिटी", "ई-गभर्नेन्स", "अनलाइन शिक्षा"], answer: "डिजिटल नेपाल", explanation: "डिजिटल नेपाल २०२५ मा सुरु भएको हो।" },
+            { q: "विश्वकप क्रिकेट २०२४ को विजेता को हो?", options: ["भारत", "अष्ट्रेलिया", "इंग्ल्यान्ड", "न्युजिल्यान्ड"], answer: "भारत", explanation: "भारत २०२४ को विजेता हो।" },
+            { q: "नेपालको पहिलो ओलम्पियन को हुन्?", options: ["हिरालाल शाह", "दिपक विष्ट", "गौरीला शाह", "रामचन्द्र पौडेल"], answer: "हिरालाल शाह", explanation: "हिरालाल शाह पहिलो ओलम्पियन हुन्।" },
+            { q: "२०२५ मा नेपालले कुन अन्तर्राष्ट्रिय सम्मेलनमा भाग लिने छ?", options: ["जलवायु सम्मेलन", "व्यापार सम्मेलन", "शिक्षा सम्मेलन", "स्वास्थ्य सम्मेलन"], answer: "जलवायु सम्मेलन", explanation: "जलवायु सम्मेलनमा भाग लिने छ।" },
+            { q: "विश्वको सबैभन्दा ठूलो खेलकुद कुन हो?", options: ["ओलम्पिक", "विश्वकप", "एशियाड", "कमनवेल्थ"], answer: "ओलम्पिक", explanation: "ओलम्पिक सबैभन्दा ठूलो हो।" },
+
+            // Medium Questions (19-26)
+            { q: "नेपालमा २०२५ मा सुरु भएको डिजिटल पहल के हो?", options: ["डिजिटल नेपाल फ्रेमवर्क", "केवल इन्टरनेट", "केवल मोबाइल", "केवल टिभी"], answer: "डिजिटल नेपाल फ्रेमवर्क", explanation: "डिजिटल नेपाल फ्रेमवर्क २०२५ मा सुरु भएको हो।" },
+            { q: "२०२५ मा नेपालले कुन खेलमा मेडल जित्यो?", options: ["तेक्वान्दो", "क्रिकेट", "फुटबल", "बास्केटबल"], answer: "तेक्वान्दो", explanation: "तेक्वान्दोमा मेडल जित्यो।" },
+            { q: "२०२४ को पल्सर स्पोर्ट्स अवार्ड कसले पाए?", options: ["गौरिका सिंह", "दिपक विष्ट", "सन्दीप लामिछाने", "अन्जना राना"], answer: "गौरिका सिंह", explanation: "गौरिका सिंहले पाए।" },
+            { q: "नेपालको २०२५ को बजेट कति अर्बको हो?", options: ["१६ खर्ब", "१४ खर्ब", "१८ खर्ब", "२० खर्ब"], answer: "१६ खर्ब", explanation: "२०२५ को बजेट १६ खर्बको हो।" },
+            { q: "२०२५ मा आयोजित हुने अन्तर्राष्ट्रिय व्यापार मेला कहाँ हो?", options: ["काठमाडौं", "नई दिल्ली", "बीजिङ", "दुबई"], answer: "काठमाडौं", explanation: "काठमाडौंमा व्यापार मेला हो।" },
+            { q: "नेपालको पहिलो विश्वकप खेलाडी को हुन्?", options: ["सन्दीप लामिछाने", "परेम चौधरी", "विनोद भण्डारी", "करन केसी"], answer: "सन्दीप लामिछाने", explanation: "सन्दीप लामिछाने पहिलो हुन्।" },
+            { q: "२०२४ को गोल्डेन ग्लोब अवार्ड कसले पाए?", options: ["ब्र्याड पिट", "लियोनार्डो डिकाप्रियो", "टम ह्याङ्क्स", "रोबर्ट डाउनी जुनियर"], answer: "लियोनार्डो डिकाप्रियो", explanation: "लियोनार्डोले २०२४ मा पाए।" },
+            { q: "नेपालमा २०२५ मा सुरु भएको हरित ऊर्जा परियोजना के हो?", options: ["सौर्य ऊर्जा", "जलविद्युत्", "वायु ऊर्जा", "थर्मल"], answer: "सौर्य ऊर्जा", explanation: "सौर्य ऊर्जा २०२५ मा सुरु भएको हो।" },
+
+            // Hard Questions (27-30)
+            { q: "२०२५ मा आयोजित प्रमुख अन्तर्राष्ट्रिय शिखर सम्मेलन कहाँ भएको हो?", options: ["पेरिस", "न्युयोर्क", "टोकियो", "जेनेभा"], answer: "पेरिस", explanation: "पेरिसमा २०२५ को शिखर सम्मेलन भएको हो।" },
+            { q: "नेपालको २०२५ को राष्ट्रिय खेलकुद परिषद्को अध्यक्ष को हुन्?", options: ["जगत विश्वकर्मा", "राम अवतार यादव", "श्रीकान्त खनाल", "प्रदीप यादव"], answer: "जगत विश्वकर्मा", explanation: "जगत विश्वकर्मा अध्यक्ष हुन्।" },
+            { q: "२०२५ मा नेपालले कुन अन्तर्राष्ट्रिय पुरस्कार जित्यो?", options: ["संयुक्त राष्ट्रसंघ पुरस्कार", "एशियाली विकास पुरस्कार", "पर्यटन पुरस्कार", "शिक्षा पुरस्कार"], answer: "पर्यटन पुरस्कार", explanation: "पर्यटन पुरस्कार २०२५ मा जित्यो।" },
+            { q: "२०२५ मा नेपालको सबैभन्दा ठूलो व्यापार साझेदार कुन देश हो?", options: ["चीन", "भारत", "अमेरिका", "जापान"], answer: "चीन", explanation: "चीन २०२५ को ठूलो साझेदार हो।" }
+        ];
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        const quizContainer = document.getElementById('quiz');
+        const scoreContainer = document.getElementById('score');
+        const currentScore = document.getElementById('current-score');
+        const progressBar = document.getElementById('progress');
+        const timerDisplay = document.getElementById('timer');
+        const resultsBtn = document.getElementById('results-btn');
+        let score = 0;
+        let answeredQuestions = 0;
+        let timeElapsed = 0;
+        let timerInterval;
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeElapsed++;
+                const minutes = Math.floor(timeElapsed / 60).toString().padStart(2, '0');
+                const seconds = (timeElapsed % 60).toString().padStart(2, '0');
+                timerDisplay.textContent = `समय: ${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function updateProgress() {
+            const progressPercentage = (answeredQuestions / questions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+        }
+
+        function showResults() {
+            quizContainer.style.display = 'none';
+            scoreContainer.textContent = `फाइनल स्कोर: ${score} बाट ${questions.length} (${((score / questions.length) * 100).toFixed(2)}%)`;
+            resultsBtn.style.display = 'block';
+            resultsBtn.onclick = () => {
+                quizContainer.style.display = 'block';
+                scoreContainer.textContent = '';
+                resultsBtn.style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                location.reload(); // Reset the quiz
+            };
+            clearInterval(timerInterval);
+        }
+
+        questions.forEach((q, i) => {
+            const div = document.createElement('div');
+            div.classList.add('question');
+            div.innerHTML = `<p>${i + 1}. ${q.q}</p>`;
+
+            const optsDiv = document.createElement('div');
+            optsDiv.classList.add('options');
+
+            const explanationDiv = document.createElement('div');
+            explanationDiv.classList.add('explanation');
+            explanationDiv.textContent = q.explanation;
+
+            const shuffled = shuffle(q.options.map(opt => ({ text: opt, isCorrect: opt === q.answer })));
+
+            shuffled.forEach(({ text, isCorrect }) => {
+                const btn = document.createElement('button');
+                btn.textContent = text;
+                btn.onclick = () => {
+                    if (btn.classList.contains('correct') || btn.classList.contains('wrong')) return;
+                    answeredQuestions++;
+                    updateProgress();
+                    currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+
+                    if (isCorrect) {
+                        btn.classList.add('correct');
+                        score++;
+                        currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+                    } else {
+                        btn.classList.add('wrong');
+                        optsDiv.querySelectorAll('button').forEach(b => {
+                            if (b.textContent === q.answer) {
+                                b.classList.add('correct');
+                            }
+                        });
+                    }
+
+                    optsDiv.querySelectorAll('button').forEach(b => b.disabled = true);
+                    explanationDiv.style.display = 'block';
+
+                    if (answeredQuestions === questions.length) {
+                        showResults();
+                    }
+                };
+                optsDiv.appendChild(btn);
+            });
+
+            div.appendChild(optsDiv);
+            div.appendChild(explanationDiv);
+            quizContainer.appendChild(div);
+        });
+
+        startTimer();
+    </script>
+</body>
+</html>
