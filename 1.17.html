@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>कम्प्युटर र यसका प्रयोग मोक्ड टेस्ट</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #c3dafe);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3a8a;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .progress-bar {
+            background: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .progress {
+            background: #3b82f6;
+            height: 100%;
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .question {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .question:hover {
+            transform: translateY(-2px);
+        }
+
+        .question p {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+        }
+
+        .options button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            color: #374151;
+        }
+
+        .options button:hover:not(:disabled) {
+            background: #f3f4f6;
+            border-color: #3b82f6;
+            transform: translateX(4px);
+        }
+
+        .options button.correct {
+            background: #bbf7d0;
+            border-color: #22c55e;
+            color: #166534;
+        }
+
+        .options button.wrong {
+            background: #fecaca;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .options button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .explanation {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #eff6ff;
+            border-radius: 8px;
+            color: #1e3a8a;
+            font-size: 0.95rem;
+        }
+
+        .score-container {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .results-btn {
+            display: none;
+            margin: 1rem auto;
+            padding: 0.75rem 2rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .results-btn:hover {
+            background: #2563eb;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+
+            .quiz-container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .question p {
+                font-size: 1rem;
+            }
+
+            .options button {
+                font-size: 0.9rem;
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>कम्प्युटर र यसका प्रयोग मोक्ड टेस्ट</h1>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <div class="timer" id="timer">समय: 00:00</div>
+            <div class="score" id="current-score">स्कोर: 0/50</div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div id="quiz"></div>
+        <div class="score-container">
+            <div class="score" id="score"></div>
+            <button class="results-btn" id="results-btn">नतिजा हेर्नुहोस्</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // Easy Questions (1-30)
+            { q: "Windows मा फाइल बचत गर्ने छोटो कुञ्जी के हो?", options: ["Ctrl + S", "Ctrl + C", "Ctrl + V", "Ctrl + X"], answer: "Ctrl + S", explanation: "Ctrl + S ले फाइल बचत हुन्छ।" },
+            { q: "MS Word मा नयाँ दस्तावेज सिर्जना गर्न प्रयोग हुने छोटो कुञ्जी के हो?", options: ["Ctrl + N", "Ctrl + P", "Ctrl + Z", "Ctrl + Y"], answer: "Ctrl + N", explanation: "Ctrl + N ले नयाँ दस्तावेज खोलिन्छ।" },
+            { q: "MS Excel मा सेलहरू चयन गर्ने तरिका कस्तो हुन्छ?", options: ["क्लिक गरेर", "डबल क्लिक गरेर", "दायाँ क्लिक गरेर", "सबै एकैचोटी"], answer: "क्लिक गरेर", explanation: "क्लिक गरेर सेल चयन हुन्छ।" },
+            { q: "Windows मा बन्द गर्ने छोटो कुञ्जी के हो?", options: ["Alt + F4", "Ctrl + F4", "Shift + F4", "Alt + F5"], answer: "Alt + F4", explanation: "Alt + F4 ले बन्द हुन्छ।" },
+            { q: "MS Word मा टेक्स्ट बोल्ड बनाउने छोटो कुञ्जी के हो?", options: ["Ctrl + B", "Ctrl + I", "Ctrl + U", "Ctrl + E"], answer: "Ctrl + B", explanation: "Ctrl + B ले टेक्स्ट बोल्ड हुन्छ।" },
+            { q: "MS Excel मा योग गर्ने फंक्सन के हो?", options: ["SUM", "AVERAGE", "MAX", "MIN"], answer: "SUM", explanation: "SUM ले योग गर्छ।" },
+            { q: "MS PowerPoint मा नयाँ स्लाइड थप्ने तरिका के हो?", options: ["Home ट्याबबाट", "Insert ट्याबबाट", "Design ट्याबबाट", "View ट्याबबाट"], answer: "Home ट्याबबाट", explanation: "Home ट्याबबाट स्लाइड थपिन्छ।" },
+            { q: "Windows मा कपी गर्ने छोटो कुञ्जी के हो?", options: ["Ctrl + C", "Ctrl + X", "Ctrl + V", "Ctrl + Z"], answer: "Ctrl + C", explanation: "Ctrl + C ले कपी हुन्छ।" },
+            { q: "MS Word मा टेक्स्ट इटालिक बनाउने छोटो कुञ्जी के हो?", options: ["Ctrl + I", "Ctrl + B", "Ctrl + U", "Ctrl + F"], answer: "Ctrl + I", explanation: "Ctrl + I ले इटालिक हुन्छ।" },
+            { q: "MS Excel मा औसत निकाल्ने फंक्सन के हो?", options: ["AVERAGE", "SUM", "COUNT", "PRODUCT"], answer: "AVERAGE", explanation: "AVERAGE ले औसत निकाल्छ।" },
+            { q: "MS PowerPoint मा स्लाइड देखाउने मोड के हो?", options: ["Slide Show", "Normal View", "Slide Sorter", "Notes Page"], answer: "Slide Show", explanation: "Slide Show मा देखाइन्छ।" },
+            { q: "Windows मा पेस्ट गर्ने छोटो कुञ्जी के हो?", options: ["Ctrl + V", "Ctrl + C", "Ctrl + X", "Ctrl + Z"], answer: "Ctrl + V", explanation: "Ctrl + V ले पेस्ट हुन्छ।" },
+            { q: "MS Word मा अन्डो गर्ने छोटो कुञ्जी के हो?", options: ["Ctrl + Z", "Ctrl + Y", "Ctrl + X", "Ctrl + C"], answer: "Ctrl + Z", explanation: "Ctrl + Z ले अन्डो हुन्छ।" },
+            { q: "MS Excel मा अधिकतम मान निकाल्ने फंक्सन के हो?", options: ["MAX", "MIN", "SUM", "AVERAGE"], answer: "MAX", explanation: "MAX ले अधिकतम मान निकाल्छ।" },
+            { q: "MS PowerPoint मा एनिमेसन थप्ने ठाउँ कहाँ छ?", options: ["Animations ट्याब", "Home ट्याब", "Insert ट्याब", "Design ट्याब"], answer: "Animations ट्याब", explanation: "Animations ट्याबमा थपिन्छ।" },
+            { q: "Windows मा टास्क म्यानेजर खोल्ने छोटो कुञ्जी के हो?", options: ["Ctrl + Shift + Esc", "Ctrl + Alt + Del", "Alt + F4", "Ctrl + F5"], answer: "Ctrl + Shift + Esc", explanation: "Ctrl + Shift + Esc ले खोलिन्छ।" },
+            { q: "MS Word मा पेज नम्बर थप्ने ठाउँ कहाँ छ?", options: ["Insert ट्याब", "Home ट्याब", "View ट्याब", "Design ट्याब"], answer: "Insert ट्याब", explanation: "Insert ट्याबमा थपिन्छ।" },
+            { q: "MS Excel मा डाटा ग्राफ बनाउने तरिका के हो?", options: ["Insert ट्याबबाट", "Home ट्याबबाट", "Data ट्याबबाट", "View ट्याबबाट"], answer: "Insert ट्याबबाट", explanation: "Insert ट्याबबाट ग्राफ बनाइन्छ।" },
+            { q: "MS PowerPoint मा स्लाइडको डिजाइन परिवर्तन कहाँ हुन्छ?", options: ["Design ट्याब", "Home ट्याब", "Insert ट्याब", "Animations ट्याब"], answer: "Design ट्याब", explanation: "Design ट्याबमा परिवर्तन हुन्छ।" },
+            { q: "Windows मा नयाँ फोल्डर सिर्जना गर्ने तरिका के हो?", options: ["Right-click > New > Folder", "Ctrl + N", "Alt + F4", "Ctrl + S"], answer: "Right-click > New > Folder", explanation: "Right-click बाट नयाँ फोल्डर बनाइन्छ।" },
+            { q: "MS Word मा स्पेलिंग जाँच गर्ने छोटो कुञ्जी के हो?", options: ["F7", "F5", "F3", "F1"], answer: "F7", explanation: "F7 ले स्पेलिंग जाँच हुन्छ।" },
+            { q: "MS Excel मा सेलमा फर्मुला सुरु कसरी हुन्छ?", options: ["=", "+", "-", "*"], answer: "=", explanation: "= बाट फर्मुला सुरु हुन्छ।" },
+            { q: "MS PowerPoint मा स्लाइड नोट थप्ने ठाउँ कहाँ छ?", options: ["Notes Section", "Insert ट्याब", "Home ट्याब", "Design ट्याब"], answer: "Notes Section", explanation: "Notes Section मा थपिन्छ।" },
+            { q: "Windows मा सर्च बार कहाँ हुन्छ?", options: ["Taskbar", "Desktop", "Control Panel", "File Explorer"], answer: "Taskbar", explanation: "Taskbar मा सर्च बार हुन्छ।" },
+            { q: "MS Word मा हेडर थप्ने ठाउँ कहाँ छ?", options: ["Insert ट्याब", "Home ट्याब", "View ट्याब", "Design ट्याब"], answer: "Insert ट्याब", explanation: "Insert ट्याबमा हेडर थपिन्छ।" },
+            { q: "MS Excel मा डाटा छान्ने छोटो कुञ्जी के हो?", options: ["Ctrl + A", "Ctrl + C", "Ctrl + V", "Ctrl + Z"], answer: "Ctrl + A", explanation: "Ctrl + A ले डाटा छानिन्छ।" },
+            { q: "MS PowerPoint मा स्लाइड हटाउने तरिका के हो?", options: ["Delete Key", "Ctrl + D", "Alt + F4", "Ctrl + Z"], answer: "Delete Key", explanation: "Delete Key ले स्लाइड हटिन्छ।" },
+            { q: "Windows मा रिसाइकल बिन कहाँ हुन्छ?", options: ["Desktop", "Taskbar", "Control Panel", "File Explorer"], answer: "Desktop", explanation: "Desktop मा रिसाइकल बिन हुन्छ।" },
+            { q: "MS Word मा टेबल इनसर्ट गर्ने ठाउँ कहाँ छ?", options: ["Insert ट्याब", "Home ट्याब", "View ट्याब", "Design ट्याब"], answer: "Insert ट्याब", explanation: "Insert ट्याबमा टेबल इनसर्ट हुन्छ।" },
+            { q: "MS Excel मा डाटा सर्ट गर्ने तरिका के हो?", options: ["Data ट्याबबाट", "Home ट्याबबाट", "Insert ट्याबबाट", "View ट्याबबाट"], answer: "Data ट्याबबाट", explanation: "Data ट्याबबाट सर्ट हुन्छ।" },
+
+            // Medium Questions (31-43)
+            { q: "MS PowerPoint मा स्लाइडको ट्रान्जिसन कसरी थपिन्छ?", options: ["ट्रान्जिसन ट्याबबाट", "इनसर्ट ट्याबबाट", "डिजाइन ट्याबबाट", "रिभ्यू ट्याबबाट"], answer: "ट्रान्जिसन ट्याबबाट", explanation: "ट्रान्जिसन ट्याबबाट थपिन्छ।" },
+            { q: "MS Word मा मेल मर्ज कसरी गरिन्छ?", options: ["Mailings ट्याबबाट", "Home ट्याबबाट", "Insert ट्याबबाट", "View ट्याबबाट"], answer: "Mailings ट्याबबाट", explanation: "Mailings ट्याबबाट मेल मर्ज हुन्छ।" },
+            { q: "MS Excel मा IF फंक्सन कसरी प्रयोग हुन्छ?", options: ["=IF(सर्त, सत्य, असत्य)", "=IF(सत्य, सर्त, असत्य)", "=IF(असत्य, सत्य, सर्त)", "=IF(सर्त)"], answer: "=IF(सर्त, सत्य, असत्य)", explanation: "=IF(सर्त, सत्य, असत्य) प्रयोग हुन्छ।" },
+            { q: "MS PowerPoint मा स्लाइड मास्टर कहाँ फेला पर्छ?", options: ["View ट्याब", "Home ट्याब", "Insert ट्याब", "Design ट्याब"], answer: "View ट्याब", explanation: "View ट्याबमा स्लाइड मास्टर छ।" },
+            { q: "Windows मा सिस्टम रिस्टोर कसरी गरिन्छ?", options: ["Control Panel बाट", "Task Manager बाट", "File Explorer बाट", "Run बाट"], answer: "Control Panel बाट", explanation: "Control Panel बाट रिस्टोर हुन्छ।" },
+            { q: "MS Word मा ट्र्याक चेन्जेस कसरी सक्रिय हुन्छ?", options: ["Review ट्याबबाट", "Home ट्याबबाट", "Insert ट्याबबाट", "View ट्याबबाट"], answer: "Review ट्याबबाट", explanation: "Review ट्याबबाट सक्रिय हुन्छ।" },
+            { q: "MS Excel मा PIVOT टेबल कसरी बनाइन्छ?", options: ["Insert ट्याबबाट", "Data ट्याबबाट", "Home ट्याबबाट", "View ट्याबबाट"], answer: "Insert ट्याबबाट", explanation: "Insert ट्याबबाट PIVOT टेबल बनाइन्छ।" },
+            { q: "MS PowerPoint मा भिडियो इनसर्ट गर्ने ठाउँ कहाँ छ?", options: ["Insert ट्याब", "Home ट्याब", "Design ट्याब", "Animations ट्याब"], answer: "Insert ट्याब", explanation: "Insert ट्याबमा भिडियो इनसर्ट हुन्छ।" },
+            { q: "Windows मा डिस्क क्लिनअप कसरी खोलिन्छ?", options: ["This PC > Properties", "Task Manager", "Control Panel", "Run"], answer: "This PC > Properties", explanation: "This PC > Properties बाट खोलिन्छ।" },
+            { q: "MS Word मा फुटनोट कसरी थपिन्छ?", options: ["References ट्याब", "Home ट्याब", "Insert ट्याब", "View ट्याब"], answer: "References ट्याब", explanation: "References ट्याबमा फुटनोट थपिन्छ।" },
+            { q: "MS Excel मा VLOOKUP फंक्सन कसरी प्रयोग हुन्छ?", options: ["=VLOOKUP(मान, दायरा, स्तम्भ, [रेंज])", "=VLOOKUP(दायरा, मान, स्तम्भ)", "=VLOOKUP(स्तम्भ, दायरा, मान)", "=VLOOKUP(रेंज, मान, दायरा)"], answer: "=VLOOKUP(मान, दायरा, स्तम्भ, [रेंज])", explanation: "=VLOOKUP(मान, दायरा, स्तम्भ, [रेंज]) प्रयोग हुन्छ।" },
+            { q: "MS PowerPoint मा कस्टम एनिमेसन कहाँ हुन्छ?", options: ["Animations ट्याब", "Design ट्याब", "Insert ट्याब", "Home ट्याब"], answer: "Animations ट्याब", explanation: "Animations ट्याबमा कस्टम एनिमेसन छ।" },
+            { q: "Windows मा सेफ मोड कसरी प्रवेश गरिन्छ?", options: ["F8 वा Shift + Restart", "Ctrl + Alt + Del", "Alt + F4", "Ctrl + S"], answer: "F8 वा Shift + Restart", explanation: "F8 वा Shift + Restart बाट प्रवेश हुन्छ।" },
+
+            // Hard Questions (44-50)
+            { q: "Windows मा रजिष्ट्री एडिटर कसरी खोलिन्छ?", options: ["Run मा 'regedit' टाइप गरेर", "Control Panel बाट", "Task Manager बाट", "File Explorer बाट"], answer: "Run मा 'regedit' टाइप गरेर", explanation: "Run मा 'regedit' टाइप गरेर खोलिन्छ।" },
+            { q: "MS Word मा म्याक्रो कसरी रेकर्ड गरिन्छ?", options: ["View ट्याब > Macros > Record Macro", "Home ट्याब > Macros", "Insert ट्याब > Macros", "Design ट्याब > Macros"], answer: "View ट्याब > Macros > Record Macro", explanation: "View ट्याबबाट म्याक्रो रेकर्ड हुन्छ।" },
+            { q: "MS Excel मा डाटा भ्यालिडेसन कसरी सेट गरिन्छ?", options: ["Data ट्याब > Data Validation", "Insert ट्याब > Validation", "Home ट्याब > Validation", "View ट्याब > Validation"], answer: "Data ट्याब > Data Validation", explanation: "Data ट्याबबाट सेट हुन्छ।" },
+            { q: "MS PowerPoint मा VBA म्याक्रो कसरी प्रयोग गरिन्छ?", options: ["Developer ट्याब", "Home ट्याब", "Insert ट्याब", "Design ट्याब"], answer: "Developer ट्याब", explanation: "Developer ट्याबमा VBA प्रयोग हुन्छ।" },
+            { q: "Windows मा सिस्टम फाइल चेकर कसरी चलाइन्छ?", options: ["Run मा 'sfc /scannow'", "Ctrl + Alt + Del", "Task Manager", "File Explorer"], answer: "Run मा 'sfc /scannow'", explanation: "Run मा 'sfc /scannow' चलाइन्छ।" },
+            { q: "MS Word मा मल्टिलेभल लिस्ट कसरी बनाइन्छ?", options: ["Home ट्याब > Multilevel List", "Insert ट्याब > List", "View ट्याब > List", "Design ट्याब > List"], answer: "Home ट्याब > Multilevel List", explanation: "Home ट्याबबाट मल्टिलेभल लिस्ट बनाइन्छ।" },
+            { q: "MS Excel मा सोल्भर एड-इन कसरी सक्रिय हुन्छ?", options: ["File > Options > Add-ins", "Home ट्याब", "Insert ट्याब", "Data ट्याब"], answer: "File > Options > Add-ins", explanation: "File > Options > Add-ins बाट सक्रिय हुन्छ।" }
+        ];
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        const quizContainer = document.getElementById('quiz');
+        const scoreContainer = document.getElementById('score');
+        const currentScore = document.getElementById('current-score');
+        const progressBar = document.getElementById('progress');
+        const timerDisplay = document.getElementById('timer');
+        const resultsBtn = document.getElementById('results-btn');
+        let score = 0;
+        let answeredQuestions = 0;
+        let timeElapsed = 0;
+        let timerInterval;
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeElapsed++;
+                const minutes = Math.floor(timeElapsed / 60).toString().padStart(2, '0');
+                const seconds = (timeElapsed % 60).toString().padStart(2, '0');
+                timerDisplay.textContent = `समय: ${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function updateProgress() {
+            const progressPercentage = (answeredQuestions / questions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+        }
+
+        function showResults() {
+            quizContainer.style.display = 'none';
+            scoreContainer.textContent = `फाइनल स्कोर: ${score} बाट ${questions.length} (${((score / questions.length) * 100).toFixed(2)}%)`;
+            resultsBtn.style.display = 'block';
+            resultsBtn.onclick = () => {
+                quizContainer.style.display = 'block';
+                scoreContainer.textContent = '';
+                resultsBtn.style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                location.reload(); // Reset the quiz
+            };
+            clearInterval(timerInterval);
+        }
+
+        questions.forEach((q, i) => {
+            const div = document.createElement('div');
+            div.classList.add('question');
+            div.innerHTML = `<p>${i + 1}. ${q.q}</p>`;
+
+            const optsDiv = document.createElement('div');
+            optsDiv.classList.add('options');
+
+            const explanationDiv = document.createElement('div');
+            explanationDiv.classList.add('explanation');
+            explanationDiv.textContent = q.explanation;
+
+            const shuffled = shuffle(q.options.map(opt => ({ text: opt, isCorrect: opt === q.answer })));
+
+            shuffled.forEach(({ text, isCorrect }) => {
+                const btn = document.createElement('button');
+                btn.textContent = text;
+                btn.onclick = () => {
+                    if (btn.classList.contains('correct') || btn.classList.contains('wrong')) return;
+                    answeredQuestions++;
+                    updateProgress();
+                    currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+
+                    if (isCorrect) {
+                        btn.classList.add('correct');
+                        score++;
+                        currentScore.textContent = `स्कोर: ${score}/${questions.length}`;
+                    } else {
+                        btn.classList.add('wrong');
+                        optsDiv.querySelectorAll('button').forEach(b => {
+                            if (b.textContent === q.answer) {
+                                b.classList.add('correct');
+                            }
+                        });
+                    }
+
+                    optsDiv.querySelectorAll('button').forEach(b => b.disabled = true);
+                    explanationDiv.style.display = 'block';
+
+                    if (answeredQuestions === questions.length) {
+                        showResults();
+                    }
+                };
+                optsDiv.appendChild(btn);
+            });
+
+            div.appendChild(optsDiv);
+            div.appendChild(explanationDiv);
+            quizContainer.appendChild(div);
+        });
+
+        startTimer();
+    </script>
+</body>
+</html>
